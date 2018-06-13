@@ -33,4 +33,9 @@ public class LemmaPOS {
 
         return Objects.hash(lemma, POS);
     }
+
+    @Override
+    public String toString() {
+        return lemma + "("+POS+")";
+    }
 }
