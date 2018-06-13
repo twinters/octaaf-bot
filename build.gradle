@@ -1,8 +1,10 @@
-group 'be.thomaswinters'
+plugins {
+    id "com.heroku.sdk.heroku-gradle" version "1.0.1"
+}
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 9
 
 repositories {
     mavenCentral()
@@ -10,4 +12,28 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile project(':twitter-util')
+    compile project(':text-util')
+    compile project(':generator-util')
+    compile project(':chatbot-util')
+    compile 'org.apache.commons:commons-lang3:3.5'
+    compile 'com.google.guava:guava:11.0.2'
+}
+
+
+heroku {
+    appName = "octaaf-bot"
+    processTypes(
+            worker: "java -jar build/libs/" + appName + ".jar -mode post "
+    )
+    includes = ["D:\\Self\\Repositories\\" + appName + "\\system.properties"]
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'be.thomaswinters.samsonworld.octaaf.OctaafTwitterBot',
+        )
+    }
+    from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) })
 }
