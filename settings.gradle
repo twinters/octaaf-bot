@@ -1,0 +1,11 @@
+include ':twitter-util'
+project(':twitter-util').projectDir = new File(settingsDir, '../twitter-util')
+include ':text-util'
+project(':text-util').projectDir = new File(settingsDir, '../text-util')
+include ':chatbot-util'
+project(':chatbot-util').projectDir = new File(settingsDir, '../chatbot-util')
+include ':generator-util'
+project(':generator-util').projectDir = new File(settingsDir, '../generator-util')
+
+rootProject.name = 'octaaf-bot'
+
