@@ -2,6 +2,7 @@ package be.thomaswinters.pos;
 
 import be.thomaswinters.replacement.Replacer;
 import org.languagetool.AnalyzedSentence;
+import org.languagetool.AnalyzedToken;
 import org.languagetool.AnalyzedTokenReadings;
 import org.languagetool.JLanguageTool;
 import org.languagetool.language.Dutch;
@@ -26,7 +27,7 @@ public class LanguageToolTagger {
     }
 
     public static List<String> getTags(AnalyzedTokenReadings token) {
-        return token.getReadings().stream().filter(e -> !e.hasNoTag()).map(e -> e.getPOSTag())
+        return token.getReadings().stream().filter(e -> !e.hasNoTag()).map(AnalyzedToken::getPOSTag)
                 .collect(Collectors.toList());
     }
     public void tag(String sentence) throws IOException {

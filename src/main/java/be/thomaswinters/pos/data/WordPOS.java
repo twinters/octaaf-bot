@@ -5,7 +5,7 @@ import java.util.Objects;
 public class WordPOS {
     private final String word;
     private final POStag tag;
-    
+
     public WordPOS(String word, POStag tag) {
         this.word = word;
         this.tag = tag;
@@ -30,7 +30,11 @@ public class WordPOS {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(word, tag);
+    }
+
+    @Override
+    public String toString() {
+        return word + "["+tag+"]";
     }
 }
