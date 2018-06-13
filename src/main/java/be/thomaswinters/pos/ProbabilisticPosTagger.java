@@ -2,6 +2,7 @@ package be.thomaswinters.pos;
 
 import be.thomaswinters.pos.data.POStag;
 import be.thomaswinters.pos.data.WordPOS;
+import be.thomaswinters.util.DataLoader;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import org.languagetool.tokenizers.WordTokenizer;
@@ -29,6 +30,10 @@ public class ProbabilisticPosTagger {
 
     public static void main(String[] args) {
         try {
+            ProbabilisticPosTagger tagger = new ProbabilisticPosTagger();
+
+            DataLoader.readLines("torfstweets.txt").stream().map(tagger::tag).forEach(System.out::println);
+
             System.out.println(
                     new ProbabilisticPosTagger()
                             .tag("Maar neen Samson, \"masseren\"! Dat betekent het toepassen van uitwendige druk op de zachte weefsels."));
@@ -46,6 +51,7 @@ public class ProbabilisticPosTagger {
         String tags[] = tagger.tag(tokenizedPrimitive);
 
         return IntStream.range(0, tokenizedPrimitive.length)
+                .peek(i-> System.out.println(tokenizedPrimitive[i]+'+'+tags[i]))
                 .mapToObj(i -> new WordPOS(tokenizedPrimitive[i], toTag(tags[i])))
                 .collect(Collectors.toList());
 
@@ -69,6 +75,14 @@ public class ProbabilisticPosTagger {
                 return POStag.PRONOUN;
             case "Conj":
                 return POStag.CONJUNCTION;
+            case "Adv":
+                return POStag.ADVERB;
+            case "Num":
+                return POStag.NUMBER;
+            case "Misc":
+                return POStag.MISCELLANEOUS;
+            case "Int":
+                return POStag.INTERJECTION;
             default:
                 throw new IllegalStateException("Unknown POS " + tag);
 
