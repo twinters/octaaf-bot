@@ -72,9 +72,9 @@ public class ProbabilisticPosTagger {
             // Convert to lemmas & filter
             List<LemmaPOS> lemmas = toLemmas(reading.getReadings());
 
-            System.out.println(wordPos + " :: " + lemmas);
+//            System.out.println(wordPos + " :: " + lemmas);
             lemmas = filterLemmas(wordPos.getTag(), lemmas);
-            System.out.println(wordPos + " => " + lemmas);
+//            System.out.println(wordPos + " => " + lemmas);
             result.add(new WordLemmaPOS(wordPos, lemmas));
 
         }
