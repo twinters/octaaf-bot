@@ -7,7 +7,6 @@ public class LemmaPOS {
     private final String POS;
 
     public LemmaPOS(String lemma, String POS) {
-
         this.lemma = lemma;
         this.POS = POS;
     }

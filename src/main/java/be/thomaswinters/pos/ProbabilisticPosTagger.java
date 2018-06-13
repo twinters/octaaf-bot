@@ -1,6 +1,7 @@
 package be.thomaswinters.pos;
 
 import be.thomaswinters.pos.data.POStag;
+import be.thomaswinters.pos.data.WordLemmaPOS;
 import be.thomaswinters.pos.data.WordPOS;
 import be.thomaswinters.util.DataLoader;
 import opennlp.tools.postag.POSModel;
@@ -31,9 +32,6 @@ public class ProbabilisticPosTagger {
     public static void main(String[] args) {
         try {
             ProbabilisticPosTagger tagger = new ProbabilisticPosTagger();
-
-            DataLoader.readLines("torfstweets.txt").stream().map(tagger::tag).forEach(System.out::println);
-
             System.out.println(
                     new ProbabilisticPosTagger()
                             .tag("Maar neen Samson, \"masseren\"! Dat betekent het toepassen van uitwendige druk op de zachte weefsels."));
@@ -42,10 +40,14 @@ public class ProbabilisticPosTagger {
         }
     }
 
-    public List<WordPOS> tag(String sentence) {
+    public List<WordLemmaPOS> tag(String sentence) {
+        
+    }
+
+    public List<WordPOS> tagWordPOS(String sentence) {
         List<String> tokenized = tokenizer.tokenize(sentence);
         tokenized.removeAll(Collections.singleton(" "));
-        String[] tokenizedPrimitive = tokenized.toArray(new String[tokenized.size()]);
+        String[] tokenizedPrimitive = tokenized.toArray(new String[0]);
 
         POSTaggerME tagger = new POSTaggerME(model);
         String tags[] = tagger.tag(tokenizedPrimitive);
