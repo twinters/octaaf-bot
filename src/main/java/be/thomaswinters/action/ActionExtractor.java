@@ -1,11 +1,10 @@
-package be.thomaswinters.samsonworld.octaaf;
+package be.thomaswinters.action;
 
 import be.thomaswinters.pos.ProbabilisticPosTagger;
 import be.thomaswinters.pos.data.LemmaPOS;
 import be.thomaswinters.pos.data.POStag;
 import be.thomaswinters.pos.data.WordLemmaPOS;
 import be.thomaswinters.pos.data.WordPOS;
-import be.thomaswinters.samsonworld.octaaf.data.ActionDescription;
 
 import java.io.IOException;
 import java.util.List;

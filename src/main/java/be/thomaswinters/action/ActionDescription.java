@@ -1,4 +1,4 @@
-package be.thomaswinters.samsonworld.octaaf.data;
+package be.thomaswinters.action;
 
 import java.util.Objects;
 

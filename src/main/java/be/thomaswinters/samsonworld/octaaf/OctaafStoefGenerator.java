@@ -1,11 +1,10 @@
 package be.thomaswinters.samsonworld.octaaf;
 
+import be.thomaswinters.action.ActionExtractor;
 import be.thomaswinters.generator.generators.reacting.IReactingGenerator;
-import be.thomaswinters.generator.generators.related.IRelatedGenerator;
 import be.thomaswinters.random.Picker;
-import be.thomaswinters.samsonworld.octaaf.data.ActionDescription;
+import be.thomaswinters.action.ActionDescription;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,7 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
             ActionDescription chosen = Picker.pick(actionDescriptions);
             String firstPersonAction = toFirstPerson(chosen.getVerb());
             return Optional.of("Ah, " + chosen.getRestOfSentence() + " " + chosen.getVerb() + "! " +
-                    "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd. 'Pa', zegt ze, " +
+                    "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
                     "'zoals jij "+chosen.getRestOfSentence()+" kan "+chosen.getVerb()+"...', ja zo "
                     +firstPersonAction+" ik "+chosen.getRestOfSentence()+" hé!");
         }

@@ -1,6 +1,7 @@
-package be.thomaswinters.samsonworld.octaaf;
+package be.thomaswinters.action;
 
-import be.thomaswinters.samsonworld.octaaf.data.ActionDescription;
+import be.thomaswinters.action.ActionDescription;
+import be.thomaswinters.action.ActionExtractor;
 import org.junit.Before;
 import org.junit.Test;
 
