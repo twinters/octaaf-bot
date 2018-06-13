@@ -4,6 +4,7 @@ import be.thomaswinters.pos.data.LemmaPOS;
 import be.thomaswinters.pos.data.POStag;
 import be.thomaswinters.pos.data.WordLemmaPOS;
 import be.thomaswinters.pos.data.WordPOS;
+import be.thomaswinters.util.DataLoader;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import org.languagetool.AnalyzedToken;
@@ -37,9 +38,14 @@ public class ProbabilisticPosTagger {
     public static void main(String[] args) {
         try {
             ProbabilisticPosTagger tagger = new ProbabilisticPosTagger();
-            new ProbabilisticPosTagger()
-                    .tag("Maar neen Samson, \"masseren\"! Dat betekent het toepassen van uitwendige druk op de zachte weefsels.")
-                    .forEach(System.out::println);
+
+            DataLoader.readLines("tweets.txt").stream().map(e -> {
+                try {
+                    return tagger.tag(e);
+                } catch (IOException e1) {
+                    throw new RuntimeException(e);
+                }
+            }).forEach(System.out::println);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,6 +71,8 @@ public class ProbabilisticPosTagger {
 
             // Convert to lemmas & filter
             List<LemmaPOS> lemmas = toLemmas(reading.getReadings());
+
+            System.out.println(wordPos + " -> " + lemmas);
             lemmas = filterLemmas(wordPos.getTag(), lemmas);
             result.add(new WordLemmaPOS(wordPos, lemmas));
 
@@ -83,7 +91,6 @@ public class ProbabilisticPosTagger {
         if (lemma.getPOS() == null) {
             return false;
         }
-        System.out.println(lemma);
         return getTagFrom(lemma.getPOS()).equals(tag);
     }
 
@@ -101,18 +108,22 @@ public class ProbabilisticPosTagger {
                 return POStag.PREPOSITION;
             case "BNW":
                 return POStag.ADJECTIVE;
-//            case "Pron":
-//                return POStag.PRONOUN;
+            case "PVW":
+                return POStag.PRONOUN;
             case "ENM":
+            case "CNJ":
                 return POStag.CONJUNCTION;
-//            case "Adv":
-//                return POStag.ADVERB;
+            case "BYW":
+                return POStag.ADVERB;
 //            case "Num":
 //                return POStag.NUMBER;
 //            case "Misc":
 //                return POStag.MISCELLANEOUS;
-//            case "Int":
-//                return POStag.INTERJECTION;
+            case "GET":
+                return POStag.INTERJECTION;
+            case "SPC": // Speciaal, bv maand
+            case "TSW":
+            case "MTE":
             case "SENT_END":
             case "PARA_END":
                 return POStag.MISCELLANEOUS;
@@ -129,7 +140,7 @@ public class ProbabilisticPosTagger {
 
     private int getIndexOf(String word, List<AnalyzedTokenReadings> readings) {
         OptionalInt result = IntStream.range(0, readings.size())
-                .filter(i -> readings.get(i).getToken().equals(word))
+                .filter(i -> readings.get(i).getToken().contains(word))
                 .findFirst();
         if (result.isPresent()) {
             return result.getAsInt();
