@@ -72,8 +72,9 @@ public class ProbabilisticPosTagger {
             // Convert to lemmas & filter
             List<LemmaPOS> lemmas = toLemmas(reading.getReadings());
 
-            System.out.println(wordPos + " -> " + lemmas);
+            System.out.println(wordPos + " :: " + lemmas);
             lemmas = filterLemmas(wordPos.getTag(), lemmas);
+            System.out.println(wordPos + " => " + lemmas);
             result.add(new WordLemmaPOS(wordPos, lemmas));
 
         }
@@ -115,12 +116,12 @@ public class ProbabilisticPosTagger {
                 return POStag.CONJUNCTION;
             case "BYW":
                 return POStag.ADVERB;
-//            case "Num":
-//                return POStag.NUMBER;
+            case "GET":
+                return POStag.NUMBER;
 //            case "Misc":
 //                return POStag.MISCELLANEOUS;
-            case "GET":
-                return POStag.INTERJECTION;
+//            case "GET":
+//                return POStag.INTERJECTION;
             case "SPC": // Speciaal, bv maand
             case "TSW":
             case "MTE":
