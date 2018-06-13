@@ -18,6 +18,10 @@ dependencies {
     compile project(':chatbot-util')
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'com.google.guava:guava:11.0.2'
+
+
+    compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: '1.8.4'
+
 }
 
 
