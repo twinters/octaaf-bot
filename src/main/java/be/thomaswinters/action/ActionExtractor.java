@@ -71,6 +71,7 @@ public class ActionExtractor {
     }
 
     private final static Set<String> meaninglessVerbs = Set.of("zijn","hebben","worden","gaan","zullen");
+    private final static Set<String> onderwerpen = Set.of("ik","jij","wij","hij","zij");
 
     private boolean canBePartOfActionDescriptor(WordLemmaPOS wordLemmaPOS) {
 
@@ -83,7 +84,7 @@ public class ActionExtractor {
             return false;
         }
         // Stop when hitting an obvious onderwerp
-        if (wordLemmaPOS.getWord().equals("ik") || wordLemmaPOS.getWord().equals("jij")) {
+        if (onderwerpen.contains(wordLemmaPOS.getWord())) {
             return false;
         }
         // Stop when hitting a bijzin
