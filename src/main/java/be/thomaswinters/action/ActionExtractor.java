@@ -69,12 +69,20 @@ public class ActionExtractor {
 
     }
 
-    private final static Set<String> meaninglessVerbs = Set.of("zijn","hebben","worden","gaan");
+    private final static Set<String> meaninglessVerbs = Set.of("zijn","hebben","worden","gaan","zullen");
 
     private boolean canBePartOfActionDescriptor(WordLemmaPOS wordLemmaPOS) {
 
         // Stop when hitting a punctuation
         if (wordLemmaPOS.getTag().equals(POStag.PUNCTUATION)) {
+            return false;
+        }
+        // Adverbs are usually also a bad sign
+        if (wordLemmaPOS.getTag().equals(POStag.ADVERB)) {
+            return false;
+        }
+        // Stop when hitting an obvious onderwerp
+        if (wordLemmaPOS.getWord().equals("ik") || wordLemmaPOS.getWord().equals("jij")) {
             return false;
         }
         // Stop when hitting a bijzin

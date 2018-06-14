@@ -14,15 +14,16 @@ import java.util.stream.Collectors;
 
 public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
 
-    private final Set<String> prohibitedActions = Set.of("betekenen");
-    private final Set<String> prohibitedSubjects = Set.of("en");
+    private final Set<String> prohibitedActions = Set.of("betekenen","gaan","zullen");
+    private final Set<String> prohibitedSubjects = Set.of("en","jij");
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
                     new ActionDescription("zijn",""),
                     new ActionDescription("zijn","naar"),
                     new ActionDescription("worden",""),
                     new ActionDescription("hebben",""),
-                    new ActionDescription("gaan",""));
+                    new ActionDescription("gaan",""),
+                    new ActionDescription("houden",""));
 
     private final ActionExtractor actionExtractor;
 
