@@ -102,6 +102,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
             if (result.length() >= 2 && result.charAt(result.length() - 1) == result.charAt(result.length() - 2)) {
                 return result.substring(0, result.length() - 1);
             }
+            return result;
         }
         if (verb.equals("zijn")) {
             return "ben";
