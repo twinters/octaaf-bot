@@ -43,7 +43,6 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
         if (message.getUser().getScreenName().toLowerCase().equals("samsonrobot")) {
             String[] betweenQuotes =StringUtils.substringsBetween(message.getText(), "\"", "\"");
             if (betweenQuotes != null) {
-                System.out.println(Arrays.asList(betweenQuotes));
                 return Picker.pickOptional(Stream.of(
                         betweenQuotes)
                         .flatMap(this::generateStream).collect(Collectors.toList()));
@@ -96,11 +95,40 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 });
     }
 
+
+    private final Set<Character> vowels = Set.of('a','e', 'i', 'o', 'u');
+    private final Set<String> tweeklanken = Set.of("au", "oe", "ou", "ui", "eu");
+    private final Set<String> deurtjeOpenUitzonderingen = Set.of("komen");
+
     private String toFirstPerson(String verb) {
         if (verb.contains("en")) {
             String result = verb.substring(0, verb.lastIndexOf("en"));
-            if (result.length() >= 2 && result.charAt(result.length() - 1) == result.charAt(result.length() - 2)) {
-                return result.substring(0, result.length() - 1);
+
+
+            // Deurtje open lettertje lopen
+            if (result.length() >= 2
+                    && !vowels.contains(result.charAt(result.length()-1))
+                    && vowels.contains(result.charAt(result.length() - 2))
+                    && !tweeklanken.contains(result.substring(result.length()-3,result.length()-1))) {
+                if (deurtjeOpenUitzonderingen.stream().noneMatch(verb::endsWith)) {
+                    return result.substring(0,result.length()-1)
+                            // Repeat last vowel
+                            + result.charAt(result.length()-2)
+                            // put real last letter at end.
+                            + result.charAt(result.length()-1);
+                }
+            }
+            // Dubbele letters vermijden
+            else if (result.length() >= 2 && result.charAt(result.length() - 1) == result.charAt(result.length() - 2)) {
+                result = result.substring(0, result.length() - 1);
+            }
+
+
+            if (result.charAt(result.length()-1)=='v') {
+                result = result.substring(0,result.length()-1)+'f';
+            }
+            if (result.charAt(result.length()-1)=='z') {
+                result = result.substring(0,result.length()-1)+'s';
             }
             return result;
         }
