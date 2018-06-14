@@ -31,6 +31,13 @@ public class DutchFirstPersonConverter {
     }
 
     public String toFirstPersonSingularVerb(String verb) {
+
+        if (verb.equals("zijn")) {
+            return "ben";
+        }
+        if (verb.equals("zien")) {
+            return "zie";
+        }
         if (verb.contains("en")) {
             String result = verb.substring(0, verb.lastIndexOf("en"));
 
@@ -61,9 +68,6 @@ public class DutchFirstPersonConverter {
                 result = result.substring(0, result.length() - 1) + 's';
             }
             return result;
-        }
-        if (verb.equals("zijn")) {
-            return "ben";
         }
         return "XX_" + verb + "_XX";
     }
