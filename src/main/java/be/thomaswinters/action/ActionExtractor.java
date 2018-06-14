@@ -75,7 +75,7 @@ public class ActionExtractor {
             return false;
         }
         // Stop when hitting a bijzin
-        if (wordLemmaPOS.getWord().equals("die")) {
+        if (wordLemmaPOS.getWord().equals("die") || wordLemmaPOS.getWord().equals("dat")) {
             return false;
         }
         return true;
