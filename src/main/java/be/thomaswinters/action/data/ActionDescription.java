@@ -1,4 +1,4 @@
-package be.thomaswinters.action;
+package be.thomaswinters.action.data;
 
 import java.util.Objects;
 

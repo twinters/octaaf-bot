@@ -1,5 +1,6 @@
 package be.thomaswinters.action;
 
+import be.thomaswinters.action.data.ActionDescription;
 import be.thomaswinters.pos.ProbabilisticPosTagger;
 import be.thomaswinters.pos.data.LemmaPOS;
 import be.thomaswinters.pos.data.POStag;

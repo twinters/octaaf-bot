@@ -1,6 +1,6 @@
 package be.thomaswinters.samsonworld.octaaf;
 
-import be.thomaswinters.action.ActionDescription;
+import be.thomaswinters.action.data.ActionDescription;
 import be.thomaswinters.action.ActionExtractor;
 import be.thomaswinters.chatbot.IChatBot;
 import be.thomaswinters.chatbot.data.IChatMessage;
@@ -11,7 +11,6 @@ import be.thomaswinters.random.Picker;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

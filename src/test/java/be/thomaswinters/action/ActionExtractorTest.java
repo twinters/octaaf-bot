@@ -1,7 +1,6 @@
 package be.thomaswinters.action;
 
-import be.thomaswinters.action.ActionDescription;
-import be.thomaswinters.action.ActionExtractor;
+import be.thomaswinters.action.data.ActionDescription;
 import org.junit.Before;
 import org.junit.Test;
 
