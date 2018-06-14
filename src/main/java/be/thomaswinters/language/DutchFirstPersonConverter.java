@@ -10,19 +10,26 @@ public class DutchFirstPersonConverter {
     private final ImmutableSet<String> tweeklanken = ImmutableSet.of("au", "oe", "ou", "ui", "eu", "ie");
     private final ImmutableSet<String> deurtjeOpenUitzonderingen = ImmutableSet.of("komen");
 
-    public String toFirstPersonPronouns(String bitOfText) {
+    public String thirdToFirstPersonPronouns(String bitOfText) {
+        return thirdToOtherPersonPronouns(bitOfText, "ik", "mijn", "mij", "mijzelf");
+    }
+    public String thirdToSecondPersonPronouns(String bitOfText) {
+        return thirdToOtherPersonPronouns(bitOfText, "jij", "jouw", "jou", "jezelf");
+    }
+
+    private String thirdToOtherPersonPronouns(String bitOfText, String newSubject, String newObsessive, String newObject, String reflective) {
         return SentenceUtil.splitOnSpaces(bitOfText)
                 .map(word -> {
                     String pureWord = SentenceUtil.removeNonLetters(word);
                     switch (pureWord) {
                         case "zij":
-                            return word.replaceAll("zij", "ik");
+                            return word.replaceAll("zij", newSubject);
                         case "hun":
-                            return word.replaceAll("hun", "mijn");
+                            return word.replaceAll("hun", newObsessive);
                         case "hen":
-                            return word.replaceAll("hen", "mij");
+                            return word.replaceAll("hen", newObject);
                         case "zichzelf":
-                            return word.replaceAll("zichzelf", "mijzelf");
+                            return word.replaceAll("zichzelf", reflective);
                         default:
                             return word;
                     }

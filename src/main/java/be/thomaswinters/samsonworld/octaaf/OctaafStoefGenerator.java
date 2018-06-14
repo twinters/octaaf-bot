@@ -22,8 +22,8 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
 
-    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen");
-    private final Set<String> prohibitedSubjects = Set.of("en", "jij");
+    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen","kunnen");
+    private final Set<String> prohibitedSubjects = Set.of("en", "jij","jullie","wij","kan");
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
                     new ActionDescription("zijn", ""),
@@ -32,6 +32,8 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("hebben", ""),
                     new ActionDescription("gaan", ""),
                     new ActionDescription("houden", ""),
+                    new ActionDescription("stellen", ""),
+                    new ActionDescription("geven", ""),
                     new ActionDescription("hebben", "honger"));
 
     private final ActionExtractor actionExtractor;
@@ -94,10 +96,11 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 .filter(e -> !prohibitedFullActions.contains(e))
                 .map(chosen -> {
                     String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
-                    String restOfSentence = firstPersonConverter.toFirstPersonPronouns(chosen.getRestOfSentence());
+                    String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
+                    String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
                     return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
                             "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
-                            "'zoals jij " + restOfSentence + " kan " + chosen.getVerb() + "...' ja zo "
+                            "'zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...' ja zo "
                             + firstPersonAction + " ik " + restOfSentence + " hé!").trim().replaceAll("\\s{2,}", " ");
                 });
     }
