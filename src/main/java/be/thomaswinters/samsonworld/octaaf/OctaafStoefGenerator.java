@@ -34,7 +34,7 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
                     "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
                     "'zoals jij "+chosen.getRestOfSentence()+" kan "+chosen.getVerb()+"...', ja zo "
                     +firstPersonAction+" ik "+chosen.getRestOfSentence()+" hé!".replaceAll("\\s+"," ");
-            return Optional.of();
+            return Optional.of(result);
         }
 
         System.out.println("Nothing found for " + input);
