@@ -34,6 +34,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("houden", ""),
                     new ActionDescription("stellen", ""),
                     new ActionDescription("geven", ""),
+                    new ActionDescription("geven", "te"),
                     new ActionDescription("hebben", "honger"));
 
     private final ActionExtractor actionExtractor;
@@ -99,7 +100,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
                     String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
                     return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
-                            "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
+                            "Dat is nu toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
                             "\"zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...\" ja zo "
                             + firstPersonAction + " ik " + restOfSentence + " hé!").trim().replaceAll("\\s{2,}", " ");
                 });

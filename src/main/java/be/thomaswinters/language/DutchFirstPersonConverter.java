@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class DutchFirstPersonConverter {
     private final ImmutableSet<Character> vowels = ImmutableSet.of('a', 'e', 'i', 'o', 'u');
-    private final ImmutableSet<String> tweeklanken = ImmutableSet.of("au", "oe", "ou", "ui", "eu", "ie");
+    private final ImmutableSet<String> tweeklanken = ImmutableSet.of("au", "oe", "ou", "ui", "eu", "ie","ei","ai");
     private final ImmutableSet<String> deurtjeOpenUitzonderingen = ImmutableSet.of("komen");
 
     public String thirdToFirstPersonPronouns(String bitOfText) {
@@ -42,8 +42,11 @@ public class DutchFirstPersonConverter {
         if (verb.equals("zijn")) {
             return "ben";
         }
-        if (verb.equals("zien")) {
-            return "zie";
+        if (verb.endsWith("zien")) {
+            return verb.substring(0,verb.length()-1);
+        }
+        if (verb.endsWith("gaan")) {
+            return verb.substring(0,verb.length()-2);
         }
         if (verb.contains("en")) {
             String result = verb.substring(0, verb.lastIndexOf("en"));
@@ -76,6 +79,8 @@ public class DutchFirstPersonConverter {
             }
             return result;
         }
-        return "XX_" + verb + "_XX";
+//        throw new RuntimeException("HELP " + verb);
+//        return "XX_" + verb + "_XX";
+        return verb;
     }
 }
