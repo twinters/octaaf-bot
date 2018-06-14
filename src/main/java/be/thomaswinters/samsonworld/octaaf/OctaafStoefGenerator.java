@@ -30,10 +30,10 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
         if (!actionDescriptions.isEmpty()) {
             ActionDescription chosen = Picker.pick(actionDescriptions);
             String firstPersonAction = toFirstPerson(chosen.getVerb());
-            String result ="Ah, " + chosen.getRestOfSentence() + " " + chosen.getVerb() + "! " +
+            String result =("Ah, " + chosen.getRestOfSentence() + " " + chosen.getVerb() + "! " +
                     "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
                     "'zoals jij "+chosen.getRestOfSentence()+" kan "+chosen.getVerb()+"...', ja zo "
-                    +firstPersonAction+" ik "+chosen.getRestOfSentence()+" hé!".replaceAll("\\s+"," ");
+                    +firstPersonAction+" ik "+chosen.getRestOfSentence()+" hé!").trim().replaceAll("\\s{2,}", " ");
             return Optional.of(result);
         }
 
