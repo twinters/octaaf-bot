@@ -65,7 +65,10 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
 
     private String toFirstPerson(String verb) {
         if (verb.contains("en")) {
-            return verb.substring(0, verb.lastIndexOf("en"));
+            String result = verb.substring(0, verb.lastIndexOf("en"));
+            if (result.length() >= 2 && result.charAt(result.length() - 1) == result.charAt(result.length() - 2)) {
+                return result.substring(0, result.length() - 1);
+            }
         }
         if (verb.equals("zijn")) {
             return "ben";
