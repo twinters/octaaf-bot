@@ -9,25 +9,33 @@ import twitter4j.TwitterException;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 
 public class OctaafStoefExperiments {
 
     public static void main(String[] args) throws IOException, TwitterException {
 
+        reactTo("experiments\\alberto.txt");
+//        downloadTweets();
+
+    }
+
+    private static void reactTo(String file) throws IOException {
         OctaafStoefGenerator octaaf = new OctaafStoefGenerator();
 
 
-        DataLoader.readLines( "experiments\\gert_bot.txt")
+        DataLoader.readLines(file)
                 .subList(0, 50)
                 .stream()
+                .peek(System.out::println)
                 .map(octaaf::generateRelated)
-                .forEach(System.out::println);
-
-        System.out.println(octaaf.generateRelated("Aheuum. Aheuuuum. Aheum. Aan allen die luiheid overwinnen: proficiat. Aan allen die werklust overwinnen: ook proficiat."));
-
-//        downloadTweets();
+                .forEach(out -> {
+                    if (out.isPresent()) {
+                        System.out.println("OCTAAF: " + out.get());
+                    } else {
+                        System.out.println("NIKS");
+                    }
+                    System.out.println("\n");
+                });
 
     }
 
@@ -35,7 +43,7 @@ public class OctaafStoefExperiments {
         new TweetDownloader(
                 new UserTweetsFetcher(
                         TwitterLogin.getTwitterFromEnvironment("octaaf."),
-                        "gert_bot", false, true)).downloadTo(new File("gert_bot.txt"));
+                        "albertbot", false, true)).downloadTo(new File("alberto.txt"));
 
     }
 }
