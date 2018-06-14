@@ -6,10 +6,15 @@ import be.thomaswinters.random.Picker;
 import be.thomaswinters.action.ActionDescription;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
+
+    private final Set<String> prohibitedActions = Set.of("betekenen");
 
     private final ActionExtractor actionExtractor;
 
@@ -26,6 +31,12 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
             e.printStackTrace();
             return Optional.empty();
         }
+
+        // Filter out
+        actionDescriptions = actionDescriptions.stream()
+                .filter(e->!prohibitedActions.contains(e.getVerb()))
+                .collect(Collectors.toList());
+
 
         if (!actionDescriptions.isEmpty()) {
             ActionDescription chosen = Picker.pick(actionDescriptions);
