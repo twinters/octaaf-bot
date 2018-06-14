@@ -9,6 +9,7 @@ import be.thomaswinters.pos.data.WordPOS;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,6 +69,8 @@ public class ActionExtractor {
 
     }
 
+    private final static Set<String> meaninglessVerbs = Set.of("zijn","hebben","worden","gaan");
+
     private boolean canBePartOfActionDescriptor(WordLemmaPOS wordLemmaPOS) {
 
         // Stop when hitting a punctuation
@@ -77,6 +80,14 @@ public class ActionExtractor {
         // Stop when hitting a bijzin
         if (wordLemmaPOS.getWord().equals("die") || wordLemmaPOS.getWord().equals("dat")) {
             return false;
+        }
+        if (wordLemmaPOS.getTag().equals(POStag.VERB)) {
+            if (!wordLemmaPOS.getLemmas().isEmpty()) {
+                return !meaninglessVerbs.contains(wordLemmaPOS.getLemmas().get(0).getLemma());
+            } else {
+                System.out.println("EDGY VERB: " + wordLemmaPOS);
+                return true;
+            }
         }
         return true;
 
