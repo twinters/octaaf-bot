@@ -42,7 +42,7 @@ public class ActionExtractor {
 //        if ()
 
         // If next word is punctuation: look back!
-        if (wordLemmas.get(i + 1).getTag().equals(POStag.PUNCTUATION)) {
+        if (wordLemmas.size() <= i+1 || wordLemmas.get(i + 1).getTag().equals(POStag.PUNCTUATION)) {
             return findBackwardsFullAction(wordLemmas, i);
         }
         return findForwardsFullAction(wordLemmas, i);

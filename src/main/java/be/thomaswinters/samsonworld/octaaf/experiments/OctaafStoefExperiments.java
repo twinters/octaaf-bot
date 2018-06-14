@@ -1,5 +1,8 @@
 package be.thomaswinters.samsonworld.octaaf.experiments;
 
+import be.thomaswinters.chatbot.data.ChatMessage;
+import be.thomaswinters.chatbot.data.ChatUser;
+import be.thomaswinters.chatbot.data.IChatUser;
 import be.thomaswinters.samsonworld.octaaf.OctaafStoefGenerator;
 import be.thomaswinters.twitter.tweetsfetcher.UserTweetsFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
@@ -9,24 +12,27 @@ import twitter4j.TwitterException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class OctaafStoefExperiments {
 
     public static void main(String[] args) throws IOException, TwitterException {
 
-        reactTo("experiments\\alberto.txt");
+        reactTo("experiments\\samson.txt", "SamsonRobot");
 //        downloadTweets();
 
     }
 
-    private static void reactTo(String file) throws IOException {
+    private static void reactTo(String file, String botName) throws IOException {
         OctaafStoefGenerator octaaf = new OctaafStoefGenerator();
 
+        IChatUser chatUser = new ChatUser(botName);
 
         DataLoader.readLines(file)
-                .subList(0, 50)
+//                .subList(0, 50)
                 .stream()
                 .peek(System.out::println)
+                .map(e->new ChatMessage(Optional.empty(),e,chatUser))
                 .map(octaaf::generateRelated)
                 .forEach(out -> {
                     if (out.isPresent()) {

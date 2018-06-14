@@ -2,19 +2,23 @@ package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.action.ActionDescription;
 import be.thomaswinters.action.ActionExtractor;
-import be.thomaswinters.generator.generators.reacting.IReactingGenerator;
+import be.thomaswinters.chatbot.IChatBot;
+import be.thomaswinters.chatbot.data.IChatMessage;
 import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
 import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
+import be.thomaswinters.random.Picker;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class OctaafStoefGenerator implements IReactingGenerator<String, String>, IReactingStreamGenerator<String, String> {
+public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<String, String> {
 
     private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen");
     private final Set<String> prohibitedSubjects = Set.of("en", "jij");
@@ -35,6 +39,23 @@ public class OctaafStoefGenerator implements IReactingGenerator<String, String>,
     }
 
     @Override
+    public Optional<String> generateReply(IChatMessage message) {
+        if (message.getUser().getScreenName().toLowerCase().equals("samsonrobot")) {
+            String[] betweenQuotes =StringUtils.substringsBetween(message.getText(), "\"", "\"");
+            if (betweenQuotes != null) {
+                System.out.println(Arrays.asList(betweenQuotes));
+                return Picker.pickOptional(Stream.of(
+                        betweenQuotes)
+                        .flatMap(this::generateStream).collect(Collectors.toList()));
+            } else {
+                return Optional.empty();
+            }
+
+        }
+        return generateRelated(message.getText());
+    }
+
+//    @Override
     public Optional<String> generateRelated(String input) {
         List<String> options = generateStream(input).collect(Collectors.toList());
 
