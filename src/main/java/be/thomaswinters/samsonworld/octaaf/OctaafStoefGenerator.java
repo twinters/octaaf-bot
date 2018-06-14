@@ -1,29 +1,32 @@
 package be.thomaswinters.samsonworld.octaaf;
 
+import be.thomaswinters.action.ActionDescription;
 import be.thomaswinters.action.ActionExtractor;
 import be.thomaswinters.generator.generators.reacting.IReactingGenerator;
-import be.thomaswinters.random.Picker;
-import be.thomaswinters.action.ActionDescription;
+import be.thomaswinters.generator.selection.ISelector;
+import be.thomaswinters.generator.selection.RouletteWheelSelection;
+import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
+public class OctaafStoefGenerator implements IReactingGenerator<String, String>, IReactingStreamGenerator<String, String> {
 
-    private final Set<String> prohibitedActions = Set.of("betekenen","gaan","zullen");
-    private final Set<String> prohibitedSubjects = Set.of("en","jij");
+    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen");
+    private final Set<String> prohibitedSubjects = Set.of("en", "jij");
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
-                    new ActionDescription("zijn",""),
-                    new ActionDescription("zijn","naar"),
-                    new ActionDescription("worden",""),
-                    new ActionDescription("hebben",""),
-                    new ActionDescription("gaan",""),
-                    new ActionDescription("houden",""));
+                    new ActionDescription("zijn", ""),
+                    new ActionDescription("zijn", "naar"),
+                    new ActionDescription("worden", ""),
+                    new ActionDescription("hebben", ""),
+                    new ActionDescription("gaan", ""),
+                    new ActionDescription("houden", ""),
+                    new ActionDescription("hebben", "honger"));
 
     private final ActionExtractor actionExtractor;
 
@@ -33,34 +36,43 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
 
     @Override
     public Optional<String> generateRelated(String input) {
+        List<String> options = generateStream(input).collect(Collectors.toList());
+
+        if (options.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Chance is with i = index from last place of array, with last place i=1:
+        // 1 / i^2
+        ISelector<String> selector = new RouletteWheelSelection<>(
+                option -> 1 / Math.pow(options.size() - options.lastIndexOf(option), 2));
+        return selector.select(options.stream());
+
+    }
+
+
+    @Override
+    public Stream<String> generateStream(String input) {
         List<ActionDescription> actionDescriptions;
         try {
             actionDescriptions = actionExtractor.extractAction(input);
         } catch (IOException e) {
             e.printStackTrace();
-            return Optional.empty();
+            return Stream.of();
         }
 
-        // Filter out
-        actionDescriptions = actionDescriptions.stream()
-                .filter(e->!prohibitedActions.contains(e.getVerb()))
-                .filter(e->!prohibitedSubjects.contains(e.getRestOfSentence()))
-                .filter(e->!prohibitedFullActions.contains(e))
-                .collect(Collectors.toList());
-
-
-        if (!actionDescriptions.isEmpty()) {
-            ActionDescription chosen = Picker.pick(actionDescriptions);
-            String firstPersonAction = toFirstPerson(chosen.getVerb());
-            String result =("Ah, " + chosen.getRestOfSentence() + " " + chosen.getVerb() + "! " +
-                    "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
-                    "'zoals jij "+chosen.getRestOfSentence()+" kan "+chosen.getVerb()+"...', ja zo "
-                    +firstPersonAction+" ik "+chosen.getRestOfSentence()+" hé!").trim().replaceAll("\\s{2,}", " ");
-            return Optional.of(result);
-        }
-
-        System.out.println("Nothing found for " + input);
-        return Optional.empty();
+        return actionDescriptions
+                .stream()
+                .filter(e -> !prohibitedActions.contains(e.getVerb()))
+                .filter(e -> !prohibitedSubjects.contains(e.getRestOfSentence()))
+                .filter(e -> !prohibitedFullActions.contains(e))
+                .map(chosen -> {
+                    String firstPersonAction = toFirstPerson(chosen.getVerb());
+                    return ("Ah, " + chosen.getRestOfSentence() + " " + chosen.getVerb() + "! " +
+                            "Dat is toevallig een van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: 'Pa,' zegt ze, " +
+                            "'zoals jij " + chosen.getRestOfSentence() + " kan " + chosen.getVerb() + "...' ja zo "
+                            + firstPersonAction + " ik " + chosen.getRestOfSentence() + " hé!").trim().replaceAll("\\s{2,}", " ");
+                });
     }
 
     private String toFirstPerson(String verb) {
@@ -73,7 +85,7 @@ public class OctaafStoefGenerator implements IReactingGenerator<String,String> {
         if (verb.equals("zijn")) {
             return "ben";
         }
-        return "XX_"+verb+"_XX";
+        return "XX_" + verb + "_XX";
     }
 
 
