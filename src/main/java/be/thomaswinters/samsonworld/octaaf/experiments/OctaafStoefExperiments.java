@@ -26,7 +26,14 @@ public class OctaafStoefExperiments {
         reactTo("experiments\\gert_bot.txt", "GertBot");
 //        allReactingsTo("experiments\\search-samson-gert.txt");
 //                downloadTweets();
+//        jeanineTest();
 
+    }
+
+    private static void jeanineTest() throws IOException {
+        IChatUser octaafUser = new ChatUser("OctaafBot");
+        JeanineTipsGenerator jeanine  = new JeanineTipsGenerator();
+        System.out.println(jeanine.generateReply(new ChatMessage(Optional.empty(),"transporteren!", octaafUser)));
     }
 
     private static void singleTest(String s) throws IOException {
