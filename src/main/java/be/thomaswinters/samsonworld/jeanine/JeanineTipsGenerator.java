@@ -7,14 +7,11 @@ import be.thomaswinters.random.Picker;
 import be.thomaswinters.sentence.SentenceUtil;
 import be.thomaswinters.wikihow.WikiHowPageScraper;
 import be.thomaswinters.wikihow.WikihowSearcher;
-import be.thomaswinters.wikihow.data.Page;
 import be.thomaswinters.wikihow.data.PageCard;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JeanineTipsGenerator implements IChatBot {
@@ -31,60 +28,72 @@ public class JeanineTipsGenerator implements IChatBot {
 
     }
 
-
-    public Optional<String> replyToOctaaf(ActionDescription action) throws IOException {
-        List<String> fullActionWords = SentenceUtil
-                .splitOnSpaces(action.getVerb() + " " + action.getRestOfSentence())
+    private List<String> getTipsFor(String search) throws IOException {
+        List<String> searchWords = SentenceUtil.splitOnSpaces(search)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
-        List<PageCard> relatedPages = searcher.search(fullActionWords);
-        Optional<List<String>> optionalTips = relatedPages
+        List<PageCard> relatedPages = searcher.search(searchWords);
+        return relatedPages
                 .stream()
                 // Sort by decreasing amount of matchine words
                 .sorted(Comparator.comparingInt((PageCard e) -> {
                     List<String> words = SentenceUtil.splitOnSpaces(e.getTitle()).collect(Collectors.toList());
-                    words.retainAll(fullActionWords);
+                    words.retainAll(searchWords);
                     return words.size();
                 }).reversed())
-                .map(e-> {
+                .map(e -> {
                     try {
                         return wikiHowPageScraper.scrape(e).getTips();
                     } catch (IOException e1) {
                         throw new RuntimeException(e1);
                     }
                 })
-                .filter(e->!e.isEmpty())
-                .findFirst();
-
-        if (optionalTips.isPresent()) {
-            return Optional.of("Ah, Octaaf, ik heb nog een goede tip over "
-                    + action.getRestOfSentence() + " " + action.getVerb()
-                    + ": " + Picker.pick(
-                    optionalTips.get()
-                            .stream()
-                            .flatMap(e -> SentenceUtil.splitInSentences(e).stream())
-                            .collect(Collectors.toList())));
-        } else {
-            if (Math.random() > 0.5) {
-                return Optional.of("Ah maar goed zijn in "
-                        + action.getRestOfSentence() + " " + action.getVerb()
-                        + ", dat heeft hij van zijn moeder!.");
-            } else {
-                return Optional.of("Dat is weer typisch, het "
-                        + action.getVerb() + " van " + action.getRestOfSentence()
-                        + "... Dat heeft hij van zijn vader hé!.");
-            }
-        }
-
+                .filter(e -> !e.isEmpty())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public Optional<String> generateReply(IChatMessage message) {
-        try {
-            Page page = wikiHowPageScraper.scrape("https://nl.wikihow.com/Vieze-geurtjes-uit-tapijt-verwijderen");
-            return Picker.pickOptional(page.getTips());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
+
+            String messageText = message.getText();
+
+            // Check if it contains an action
+            if (messageText.contains("!")) {
+                String actionText = messageText.substring(0, messageText.indexOf('!')).replaceAll("[Aa]h,? ?", "");
+
+                List<String> tips = new ArrayList<>();
+                try {
+                    tips = getTipsFor(actionText);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (!tips.isEmpty()) {
+                    return Optional.of("Ah, Octaaf, ik heb nog een goede tip over "
+                            + actionText
+                            + ": "
+                            + Picker.pick(
+                            tips
+                                    .stream()
+                                    .flatMap(e -> SentenceUtil.splitInSentences(e).stream())
+                                    .collect(Collectors.toList()))
+                    );
+                } else {
+                    if (Math.random() > 0.5) {
+                        return Optional.of("Ah maar goed zijn in "
+                                + actionText
+                                + ", dat heeft hij van zijn moeder!.");
+                    } else {
+                        return Optional.of("Dat is weer typisch, het "
+                                + actionText
+                                + "... Dat heeft hij van zijn vader hé!.");
+                    }
+                }
+            }
+
         }
 
         return Optional.empty();
