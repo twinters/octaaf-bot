@@ -6,6 +6,8 @@ include ':chatbot-util'
 project(':chatbot-util').projectDir = new File(settingsDir, '../chatbot-util')
 include ':generator-util'
 project(':generator-util').projectDir = new File(settingsDir, '../generator-util')
+include ':wikihow-scraper'
+project(':wikihow-scraper').projectDir = new File(settingsDir, '../wikihow-scraper')
 
 rootProject.name = 'octaaf-bot'
 
