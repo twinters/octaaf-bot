@@ -162,12 +162,12 @@ public class JeanineTipsGenerator implements IChatBot {
                     return Optional.of("Ah maar goed zijn in het "
                             + actionVerb
                             + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
-                            + ", dat heeft hij van zijn moeder!.");
+                            + ", dat heeft hij van zijn moeder!");
                 } else {
                     return Optional.of("Dat is weer typisch, het "
                             + actionVerb
                             + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
-                            + "... Dat heeft hij van zijn vader hé!.");
+                            + "... Dat heeft hij van zijn vader hé!");
                 }
             }
 
