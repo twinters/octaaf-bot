@@ -7,31 +7,50 @@ import java.util.stream.Collectors;
 
 public class DutchFirstPersonConverter {
     private final ImmutableSet<Character> vowels = ImmutableSet.of('a', 'e', 'i', 'o', 'u');
-    private final ImmutableSet<String> tweeklanken = ImmutableSet.of("au", "oe", "ou", "ui", "eu", "ie","ei","ai");
+    private final ImmutableSet<String> tweeklanken = ImmutableSet.of("au", "oe", "ou", "ui", "eu", "ie", "ei", "ai");
     private final ImmutableSet<String> deurtjeOpenUitzonderingen = ImmutableSet.of("komen");
 
     public String thirdToFirstPersonPronouns(String bitOfText) {
         return thirdToOtherPersonPronouns(bitOfText, "ik", "mijn", "mij", "mijzelf");
     }
+
+    public String firstToSecondPersonPronouns(String bitOfText) {
+        return firstToOtherPersonPronouns(bitOfText, "jij", "jouw", "jou", "jezelf");
+    }
+
+
     public String thirdToSecondPersonPronouns(String bitOfText) {
         return thirdToOtherPersonPronouns(bitOfText, "jij", "jouw", "jou", "jezelf");
     }
 
-    private String thirdToOtherPersonPronouns(String bitOfText, String newSubject, String newObsessive, String newObject, String reflective) {
+    private String thirdToOtherPersonPronouns(String bitOfText, String newSubject, String newObsessive, String newObject, String newReflective) {
+        return convertPersonPronouns(bitOfText, "zij", "hun", "hen", "zichzelf", newSubject, newObsessive, newObject, newReflective);
+    }
+
+    private String firstToOtherPersonPronouns(String bitOfText, String newSubject, String newObsessive, String newObject, String newReflective) {
+        return convertPersonPronouns(bitOfText, "ik", "mijn", "mij", "mijzelf", newSubject, newObsessive, newObject, newReflective);
+    }
+
+
+    private String convertPersonPronouns(String bitOfText,
+                                         String oldSubject, String oldObsessive, String oldObject, String oldReflective,
+                                         String newSubject, String newObsessive, String newObject, String newReflective) {
         return SentenceUtil.splitOnSpaces(bitOfText)
                 .map(word -> {
                     String pureWord = SentenceUtil.removeNonLetters(word);
-                    switch (pureWord) {
-                        case "zij":
-                            return word.replaceAll("zij", newSubject);
-                        case "hun":
-                            return word.replaceAll("hun", newObsessive);
-                        case "hen":
-                            return word.replaceAll("hen", newObject);
-                        case "zichzelf":
-                            return word.replaceAll("zichzelf", reflective);
-                        default:
-                            return word;
+                    if (pureWord.equals(oldSubject)) {
+                        return word.replaceAll(oldSubject, newSubject);
+                    }
+                    if (pureWord.equals(oldObsessive)) {
+                        return word.replaceAll(oldObsessive, newObsessive);
+                    }
+                    if (pureWord.equals(oldObject)) {
+                        return word.replaceAll(oldObject, newObject);
+                    }
+                    if (pureWord.equals(oldReflective)) {
+                        return word.replaceAll(oldReflective, newReflective);
+                    } else {
+                        return word;
                     }
                 })
                 .collect(Collectors.joining(" "));
@@ -43,10 +62,10 @@ public class DutchFirstPersonConverter {
             return "ben";
         }
         if (verb.endsWith("zien")) {
-            return verb.substring(0,verb.length()-1);
+            return verb.substring(0, verb.length() - 1);
         }
         if (verb.endsWith("gaan")) {
-            return verb.substring(0,verb.length()-2);
+            return verb.substring(0, verb.length() - 2);
         }
         if (verb.contains("en")) {
             String result = verb.substring(0, verb.lastIndexOf("en"));
