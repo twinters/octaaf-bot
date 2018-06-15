@@ -154,6 +154,11 @@ public class JeanineTipsGenerator implements IChatBot {
                 List<String> tips = new ArrayList<>();
                 try {
                     tips = getFirstTipsIn(getPages(actionText));
+                } catch (HttpStatusException e) {
+                    if (e.getStatusCode()==404) {
+                        System.out.println("404 for " + actionText);
+                    }
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -166,8 +171,7 @@ public class JeanineTipsGenerator implements IChatBot {
                                     .filter(e -> e.length() > 0)
                                     .filter(this::isValidTip)
                                     .map(this::decapitalise)
-                                    .map(this::cleanTip)
-                                    .peek(e -> System.out.println("TIP: " + e)));
+                                    .map(this::cleanTip));
 
                     if (selectedTip.isPresent()) {
                         String tip = selectedTip.get();

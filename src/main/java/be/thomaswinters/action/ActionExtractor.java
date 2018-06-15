@@ -24,7 +24,7 @@ public class ActionExtractor {
     public List<ActionDescription> extractAction(String sentence) throws IOException {
         List<WordLemmaPOS> wordLemmas = tagger.tag(sentence);
 
-        System.out.println(wordLemmas);
+//        System.out.println(wordLemmas);
         return IntStream
                 .range(0, wordLemmas.size())
                 .filter(i -> wordLemmas.get(i).getTag().equals(POStag.VERB))
