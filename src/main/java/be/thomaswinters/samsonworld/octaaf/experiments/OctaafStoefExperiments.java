@@ -51,14 +51,14 @@ public class OctaafStoefExperiments {
         DataLoader.readLines(file)
 //                .subList(0, 50)
                 .stream()
-                .peek(System.out::println)
+                .peek(e->System.out.println(botName + ": \t" + e))
                 .map(e -> new ChatMessage(Optional.empty(), e, chatUser))
                 .map(octaaf::generateRelated)
                 .forEach(out -> {
                     if (out.isPresent()) {
-                        System.out.println("OCTAAF: " + out.get());
+                        System.out.println("OCTAAF: \t" + out.get());
                         jeanine.generateReply(new ChatMessage(Optional.empty(), out.get(),octaafUser))
-                                .ifPresent(e->System.out.println("JEANINE: " + e));
+                                .ifPresent(e->System.out.println("JEANINE:\t" + e));
                     } else {
                         System.out.println("NIKS");
                     }
