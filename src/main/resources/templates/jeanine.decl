@@ -1,0 +1,18 @@
+// Input
+// titel = \titel(<voornaam> <achternaam>)
+// aanspreking = (<vaste_aanspreking>)/((<titel> /meneer )(<achternaam.capitaliseAll>/<voornaam.capitaliseAll>)/<voornaam>
+
+
+vanZijnOuders = {
+	1: Dat is weer typisch, het <actionVerb>( van <actionDescription.firstToThirdMalePersonPronouns>)... Dat heeft hij van zijn vader, hé!
+	1: Ah maar goed zijn in het <actionVerb>( van <actionDescription.firstToThirdMalePersonPronouns>), dat heeft hij van zijn moeder!
+}
+
+tip = {
+	Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het <actionVerb> <actionDescription.firstToSecondPersonPronouns>: <tip>
+}
+
+main = {
+	5: <tip> / <vanZijnOuders>
+	1: <vanZijnOuders>
+}
