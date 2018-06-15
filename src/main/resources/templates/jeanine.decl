@@ -4,15 +4,18 @@
 
 
 vanZijnOuders = {
-	1: Dat is weer typisch, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)... Dat heeft hij van zijn vader, hé!
-	1: Ah maar goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>), dat heeft hij van zijn moeder!
+	1: Dat is weer typisch(, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)){.7}... Dat heeft hij van zijn vader, hé!
+	1: (Ah(,){.4} (maar){.5}){.5} goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>),( ja,){.5} dat heeft hij van zijn moeder!
 }
 
+actionSecond = <actionVerb>\ifdefined( van <actionDescription.firstToSecondPersonPronouns>)
+
 tipGeving = {
-	1: Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het <actionVerb>\ifdefined( van <actionDescription.firstToSecondPersonPronouns>): <tip>
+	5: Octaaf,( ik heb){.5}( nog){.5} een( goede){.5} tip( van mijn hobbyclub){.5} voor( het <actionSecond>| als je \ifdefined(<actionDescription.firstToSecondPersonPronouns>) gaat <actionVerb>): <tip>
+	1: Je weet wat ik je( daarover){.5} heb gezegd he! <tip.capitalise>
 }
 
 main = {
-	5: (<tipGeving> / <vanZijnOuders>)
+	6: (<tipGeving.capitalise>/<vanZijnOuders.capitalise>)
 	1: <vanZijnOuders>
 }
