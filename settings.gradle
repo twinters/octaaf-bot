@@ -8,6 +8,8 @@ include ':generator-util'
 project(':generator-util').projectDir = new File(settingsDir, '../generator-util')
 include ':wikihow-scraper'
 project(':wikihow-scraper').projectDir = new File(settingsDir, '../wikihow-scraper')
+include ':words'
+project(':words').projectDir = new File(settingsDir, '../words')
 
 rootProject.name = 'octaaf-bot'
 
