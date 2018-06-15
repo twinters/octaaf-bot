@@ -6,6 +6,8 @@ import be.thomaswinters.generator.fitness.IFitnessFunction;
 import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.TournamentSelection;
 import be.thomaswinters.language.DutchFirstPersonConverter;
+import be.thomaswinters.replacement.Replacer;
+import be.thomaswinters.replacement.Replacers;
 import be.thomaswinters.sentence.SentenceUtil;
 import be.thomaswinters.wikihow.WikiHowPageScraper;
 import be.thomaswinters.wikihow.WikihowSearcher;
@@ -14,10 +16,7 @@ import be.thomaswinters.wikihow.data.PageCard;
 import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JeanineTipsGenerator implements IChatBot {
@@ -25,7 +24,15 @@ public class JeanineTipsGenerator implements IChatBot {
     private final WikiHowPageScraper wikiHowPageScraper = new WikiHowPageScraper("nl");
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
     private final ISelector<String> tipSelector = new TournamentSelection<>(tipFitnessFunction, 5);
-
+    private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
+    private Replacers tipNegators = new Replacers(Arrays.asList(
+            new Replacer("een", "geen", false, true),
+            new Replacer("goed", "slecht", false, true),
+            new Replacer("de meeste", "zeer weinig", false, true),
+            new Replacer("niet meer", "nog steeds", false, true),
+            new Replacer("niet", "zeker wel", false, true),
+            new Replacer("ook", "zeker niet", false, true)
+    ));
 
     private List<Page> getPages(String search) throws IOException {
         List<String> searchWords = SentenceUtil.splitOnSpaces(search)
@@ -87,16 +94,31 @@ public class JeanineTipsGenerator implements IChatBot {
 
     }
 
-    private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
+    private String negateTip(String text) {
+        String result = tipNegators.replace(text);
+        System.out.println(
+                "NEGATED TEXT:\t" + text + "\n" +
+                        "TO RESULTING:\t" + result);
+        return result;
+    }
+
     @Override
     public Optional<String> generateReply(IChatMessage message) {
         if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
 
             String messageText = message.getText();
 
+
             // Check if it contains an action
             if (messageText.contains("!")) {
                 String actionText = messageText.substring(0, messageText.indexOf('!')).replaceAll("[Aa]h,? ?", "");
+
+                List<String> actionWords = SentenceUtil.splitOnSpaces(actionText).collect(Collectors.toList());
+                String actionVerb = actionWords.get(actionWords.size() - 1);
+                Optional<String> actionDescription = actionWords.size() > 1 ?
+                        Optional.of(SentenceUtil.joinWithSpaces(actionWords.subList(0, actionWords.size() - 1))) :
+                        Optional.empty();
+
 
                 List<String> tips = new ArrayList<>();
                 try {
@@ -117,17 +139,34 @@ public class JeanineTipsGenerator implements IChatBot {
                                     .peek(e -> System.out.println("TIP: " + e)));
 
                     if (selectedTip.isPresent()) {
-                        return Optional.of("Octaaf, ik heb nog een goede tip van mijn hobbyclub over "
-                                + firstPersonConverter.firstToSecondPersonPronouns(actionText) + ": " + selectedTip.get());
+
+                        String tip = selectedTip.get();
+                        // Check if action is something inverted (burgemeester)
+                        if (actionText.contains("niet") || actionText.contains("geen")) {
+                            tip = negateTip(tip);
+                        }
+
+                        return Optional.of("Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het "
+                                + actionVerb
+                                + actionDescription
+                                .map(s -> " van " + firstPersonConverter.firstToSecondPersonPronouns(s))
+                                .orElse("")
+                                + ": " + tip);
                     }
                 }
+
+
+                Optional<String> thirdPersonActionDescription =
+                        actionDescription.map(firstPersonConverter::firstToThirdMalePersonPronouns);
                 if (Math.random() > 0.5) {
-                    return Optional.of("Ah maar goed zijn in "
-                            + actionText
+                    return Optional.of("Ah maar goed zijn in het "
+                            + actionVerb
+                            + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
                             + ", dat heeft hij van zijn moeder!.");
                 } else {
                     return Optional.of("Dat is weer typisch, het "
-                            + actionText
+                            + actionVerb
+                            + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
                             + "... Dat heeft hij van zijn vader hé!.");
                 }
             }

@@ -17,6 +17,9 @@ public class DutchFirstPersonConverter {
     public String firstToSecondPersonPronouns(String bitOfText) {
         return firstToOtherPersonPronouns(bitOfText, "jij", "jouw", "jou", "jezelf");
     }
+    public String firstToThirdMalePersonPronouns(String bitOfText) {
+        return firstToOtherPersonPronouns(bitOfText, "hij", "zijn", "hem", "zichzelf");
+    }
 
 
     public String thirdToSecondPersonPronouns(String bitOfText) {
