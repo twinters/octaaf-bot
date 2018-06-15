@@ -4,15 +4,15 @@
 
 
 vanZijnOuders = {
-	1: Dat is weer typisch, het <actionVerb>( van <actionDescription.firstToThirdMalePersonPronouns>)... Dat heeft hij van zijn vader, hé!
-	1: Ah maar goed zijn in het <actionVerb>( van <actionDescription.firstToThirdMalePersonPronouns>), dat heeft hij van zijn moeder!
+	1: Dat is weer typisch, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)... Dat heeft hij van zijn vader, hé!
+	1: Ah maar goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>), dat heeft hij van zijn moeder!
 }
 
-tip = {
-	Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het <actionVerb> <actionDescription.firstToSecondPersonPronouns>: <tip>
+tipGeving = {
+	1: Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het <actionVerb>\ifdefined( van <actionDescription.firstToSecondPersonPronouns>): <tip>
 }
 
 main = {
-	5: <tip> / <vanZijnOuders>
+	5: (<tipGeving> / <vanZijnOuders>)
 	1: <vanZijnOuders>
 }

@@ -9,6 +9,13 @@ import be.thomaswinters.language.DutchFirstPersonConverter;
 import be.thomaswinters.replacement.Replacer;
 import be.thomaswinters.replacement.Replacers;
 import be.thomaswinters.sentence.SentenceUtil;
+import be.thomaswinters.textgeneration.domain.context.TextGeneratorContext;
+import be.thomaswinters.textgeneration.domain.factories.command.CommandFactory;
+import be.thomaswinters.textgeneration.domain.factories.command.SingleTextGeneratorArgumentCommandFactory;
+import be.thomaswinters.textgeneration.domain.generators.ITextGenerator;
+import be.thomaswinters.textgeneration.domain.generators.commands.LambdaSingleGeneratorArgumentCommand;
+import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
+import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
 import be.thomaswinters.wikihow.WikiHowPageScraper;
 import be.thomaswinters.wikihow.WikihowSearcher;
 import be.thomaswinters.wikihow.data.Page;
@@ -23,8 +30,9 @@ public class JeanineTipsGenerator implements IChatBot {
     private final WikihowSearcher searcher = new WikihowSearcher("nl");
     private final WikiHowPageScraper wikiHowPageScraper = new WikiHowPageScraper("nl");
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
-    private final ISelector<String> tipSelector = new TournamentSelection<>(tipFitnessFunction, 5);
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
+    private final ISelector<String> tipSelector = new TournamentSelection<>(tipFitnessFunction, 5);
+    private final ITextGenerator templatedGenerator;
     private Replacers tipNegators = new Replacers(Arrays.asList(
             new Replacer("een", "geen", false, true),
             new Replacer("goed", "slecht", false, true),
@@ -33,6 +41,25 @@ public class JeanineTipsGenerator implements IChatBot {
             new Replacer("niet", "zeker wel", false, true),
             new Replacer("ook", "zeker niet", false, true)
     ));
+
+    public JeanineTipsGenerator() throws IOException {
+        List<CommandFactory> customCommands = Arrays.asList(
+                new SingleTextGeneratorArgumentCommandFactory(
+                        "firstToThirdMalePersonPronouns",
+                        e -> new LambdaSingleGeneratorArgumentCommand(e,
+                                firstPersonConverter::firstToThirdMalePersonPronouns,
+                                "firstToThirdMalePersonPronouns")),
+                new SingleTextGeneratorArgumentCommandFactory(
+                        "firstToSecondPersonPronouns",
+                        e -> new LambdaSingleGeneratorArgumentCommand(e,
+                                firstPersonConverter::firstToSecondPersonPronouns,
+                                "firstToSecondPersonPronouns"))
+        );
+        this.templatedGenerator = DeclarationsFileParser.createTemplatedGenerator(
+                ClassLoader.getSystemResource("templates/jeanine.decl"),
+                customCommands
+        );
+    }
 
     private List<Page> getPages(String search) throws IOException {
         List<String> searchWords = SentenceUtil.splitOnSpaces(search)
@@ -107,7 +134,7 @@ public class JeanineTipsGenerator implements IChatBot {
         if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
 
             String messageText = message.getText();
-
+            NamedGeneratorRegister register = new NamedGeneratorRegister();
 
             // Check if it contains an action
             if (messageText.contains("!")) {
@@ -118,6 +145,10 @@ public class JeanineTipsGenerator implements IChatBot {
                 Optional<String> actionDescription = actionWords.size() > 1 ?
                         Optional.of(SentenceUtil.joinWithSpaces(actionWords.subList(0, actionWords.size() - 1))) :
                         Optional.empty();
+
+                register.createGenerator("actionVerb", actionVerb);
+                actionDescription.ifPresent(e ->
+                        register.createGenerator("actionDescription", e));
 
 
                 List<String> tips = new ArrayList<>();
@@ -139,40 +170,24 @@ public class JeanineTipsGenerator implements IChatBot {
                                     .peek(e -> System.out.println("TIP: " + e)));
 
                     if (selectedTip.isPresent()) {
-
                         String tip = selectedTip.get();
                         // Check if action is something inverted (burgemeester)
                         if (actionText.contains("niet") || actionText.contains("geen")) {
                             tip = negateTip(tip);
                         }
-
-                        return Optional.of("Octaaf, ik heb nog een goede tip van mijn hobbyclub voor het "
-                                + actionVerb
-                                + actionDescription
-                                .map(s -> " van " + firstPersonConverter.firstToSecondPersonPronouns(s))
-                                .orElse("")
-                                + ": " + tip);
+                        register.createGenerator("tip", tip);
                     }
-                }
-
-
-                Optional<String> thirdPersonActionDescription =
-                        actionDescription.map(firstPersonConverter::firstToThirdMalePersonPronouns);
-                if (Math.random() > 0.5) {
-                    return Optional.of("Ah maar goed zijn in het "
-                            + actionVerb
-                            + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
-                            + ", dat heeft hij van zijn moeder!");
-                } else {
-                    return Optional.of("Dat is weer typisch, het "
-                            + actionVerb
-                            + thirdPersonActionDescription.map(s -> " van " + s).orElse("")
-                            + "... Dat heeft hij van zijn vader hé!");
                 }
             }
 
+            String result =
+                    templatedGenerator.generate(
+                            new TextGeneratorContext(register, true)
+                    );
+            if (result.trim().length() > 0) {
+                return Optional.of(result);
+            }
         }
-
         return Optional.empty();
     }
 }

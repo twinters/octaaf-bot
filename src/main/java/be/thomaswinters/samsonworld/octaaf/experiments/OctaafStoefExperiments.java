@@ -23,7 +23,7 @@ public class OctaafStoefExperiments {
 
     public static void main(String[] args) throws IOException, TwitterException {
 //        singleTest("Dat is weer typisch! Dat heeft hij van zijn vader!");
-        reactTo("experiments\\burgemeesterbot.txt", "BurgemeesterBot");
+        reactTo("experiments\\gert_bot.txt", "GertBot");
 //        allReactingsTo("experiments\\search-samson-gert.txt");
 //                downloadTweets();
 
