@@ -1,8 +1,10 @@
 package be.thomaswinters.samsonworld.octaaf.experiments;
 
+import be.thomaswinters.action.data.ActionDescription;
 import be.thomaswinters.chatbot.data.ChatMessage;
 import be.thomaswinters.chatbot.data.ChatUser;
 import be.thomaswinters.chatbot.data.IChatUser;
+import be.thomaswinters.samsonworld.jeanine.JeanineTipsGenerator;
 import be.thomaswinters.samsonworld.octaaf.OctaafStoefGenerator;
 import be.thomaswinters.twitter.tweetsfetcher.SearchTweetsFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
@@ -20,9 +22,9 @@ import java.util.stream.Collectors;
 public class OctaafStoefExperiments {
 
     public static void main(String[] args) throws IOException, TwitterException {
-//        singleTest("is zingen ook een van jouw specialiteiten?");
-//        reactTo("experiments\\burgemeesterbot.txt", "BurgemeesterBot");
-        allReactingsTo("experiments\\search-samson-gert.txt");
+//        singleTest("Dat is weer typisch! Dat heeft hij van zijn vader!");
+        reactTo("experiments\\burgemeesterbot.txt", "BurgemeesterBot");
+//        allReactingsTo("experiments\\search-samson-gert.txt");
 //                downloadTweets();
 
     }
@@ -34,6 +36,8 @@ public class OctaafStoefExperiments {
 
     private static void reactTo(String file, String botName) throws IOException {
         OctaafStoefGenerator octaaf = new OctaafStoefGenerator();
+        IChatUser octaafUser = new ChatUser("OctaafBot");
+        JeanineTipsGenerator jeanine  = new JeanineTipsGenerator();
 
         IChatUser chatUser = new ChatUser(botName);
 
@@ -46,6 +50,8 @@ public class OctaafStoefExperiments {
                 .forEach(out -> {
                     if (out.isPresent()) {
                         System.out.println("OCTAAF: " + out.get());
+                        jeanine.generateReply(new ChatMessage(Optional.empty(), out.get(),octaafUser))
+                                .ifPresent(e->System.out.println("JEANINE: " + e));
                     } else {
                         System.out.println("NIKS");
                     }
