@@ -50,13 +50,19 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
             if (betweenQuotes != null) {
                 return Picker.pickOptional(Stream.of(
                         betweenQuotes)
-                        .flatMap(this::generateStream).collect(Collectors.toList()));
+                        .flatMap(this::generateStream)
+                        .collect(Collectors.toList()));
             } else {
                 return Optional.empty();
             }
         }
         if (message.getUser().getScreenName().toLowerCase().equals("burgemeesterbot")) {
             if (message.getText().contains("iemand anders zijn")) {
+                return Optional.empty();
+            }
+        }
+        if (message.getUser().getScreenName().toLowerCase().equals("AlbertoBot")) {
+            if (message.getText().contains("AL-BER-TO")) {
                 return Optional.empty();
             }
         }

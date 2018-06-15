@@ -2,24 +2,35 @@
 // titel = \titel(<voornaam> <achternaam>)
 // aanspreking = (<vaste_aanspreking>)/((<titel> /meneer )(<achternaam.capitaliseAll>/<voornaam.capitaliseAll>)/<voornaam>
 
+// Uitspraken
 ah = (A|O)h,
-vanZijnOuders = {
-	1: (<ah> ){.2}dat is weer typisch(, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)){.7}... Dat heeft hij van zijn vader, hé!
-	1: (<ah> (maar ){.7}){.5}goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>),( ja,){.5} dat heeft hij van zijn moeder!
-}
+he = (, hé){.5}
+octaafJongen = Octaaf(, mijn jongen){.85},
 
+// Acties
 actionSecond = (<actionVerb>\ifdefined( van <actionDescription.firstToSecondPersonPronouns>)/<actionVerb>)
 actionWanneerGaat = (als|wanneer) je \ifdefined(<actionDescription.firstToSecondPersonPronouns> )gaat <actionVerb>
-
-octaafJongen = Octaaf(, mijn jongen){.7},
-
-tipGeving = {
-	5: <octaafJongen> (je kent mijn( goede){.5}|een) (tip van (mijn hobbyclub|de hobbyclub, waar ik voorzitster van ben,)|hobbyclubtip)( voor( het <actionSecond>| <actionWanneerGaat>)){.7}: <tip>
-	2: (<octaafJongen> je|Je) weet wat ik je( daarover){.5} heb gezegd he! <tip.capitalise>
-	1: (En onthoud goed|Je weet het hé),( Octaaf,){.5} mijn jongen: <tip>
+daarover = {
+	2: voor( het <actionSecond>| <actionWanneerGaat>)
+	1: daarover(, hé){.6}
 }
 
-main = {
+// Template types
+vanZijnOuders = {
+	1: ((<ah> ){.2}dat is weer typisch<he>(, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)){.7}|Typisch)... Dat heeft hij( weer){.5} van zijn vader<he>!
+	1: ((<ah> (maar ){.1}){.5}goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>), ){.7}(ja, ){.5}dat heeft hij van zijn moeder<he>!
+}
+tipGeving = {
+	5: <octaafJongen> (je kent mijn( goede){.5}|een) (tip van (mijn hobbyclub|de hobbyclub, waar ik voorzitster van ben,)|hobbyclubtip) <daarover>: <tip>
+	2: (<octaafJongen> je|Je) (weet|herinnert je nog) wat ik je( daarover){.5} heb gezegd<he>(! <tip.capitalise>|: <tip>)
+	1: (En onthoud goed|Je weet het<he>),( Octaaf,){.5} mijn jongen: <tip>
+}
+
+// Main
+OctaafAntwoord = {
 	6: (<tipGeving.capitalise>/<vanZijnOuders.capitalise>)
 	1: <vanZijnOuders.capitalise>
 }
+
+
+main = <OctaafAntwoord>
