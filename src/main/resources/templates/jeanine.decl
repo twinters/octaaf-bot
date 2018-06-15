@@ -2,18 +2,21 @@
 // titel = \titel(<voornaam> <achternaam>)
 // aanspreking = (<vaste_aanspreking>)/((<titel> /meneer )(<achternaam.capitaliseAll>/<voornaam.capitaliseAll>)/<voornaam>
 
-
+ah = (A|O)h,
 vanZijnOuders = {
-	1: Dat is weer typisch(, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)){.7}... Dat heeft hij van zijn vader, hé!
-	1: (A|O)h(, | )(maar ){.7}goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>),( ja,){.5} dat heeft hij van zijn moeder!
+	1: (<ah> ){.2}dat is weer typisch(, het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>)){.7}... Dat heeft hij van zijn vader, hé!
+	1: (<ah> (maar ){.7}){.5}goed zijn in het <actionVerb>\ifdefined( van <actionDescription.firstToThirdMalePersonPronouns>),( ja,){.5} dat heeft hij van zijn moeder!
 }
 
 actionSecond = (<actionVerb>\ifdefined( van <actionDescription.firstToSecondPersonPronouns>)/<actionVerb>)
 actionWanneerGaat = (als|wanneer) je \ifdefined(<actionDescription.firstToSecondPersonPronouns> )gaat <actionVerb>
 
+octaafJongen = Octaaf(, mijn jongen){.7},
+
 tipGeving = {
-	5: Octaaf,( ik heb){.5}( nog){.5} een( goede){.5} tip( van mijn hobbyclub){.5} voor( het <actionSecond>| <actionWanneerGaat>): <tip>
-	//1: Je weet wat ik je( daarover){.5} heb gezegd he! <tip.capitalise>
+	5: <octaafJongen> (je kent mijn( goede){.5}|een) (tip van (mijn hobbyclub|de hobbyclub, waar ik voorzitster van ben,)|hobbyclubtip)( voor( het <actionSecond>| <actionWanneerGaat>)){.7}: <tip>
+	2: (<octaafJongen> je|Je) weet wat ik je( daarover){.5} heb gezegd he! <tip.capitalise>
+	1: (En onthoud goed|Je weet het hé),( Octaaf,){.5} mijn jongen: <tip>
 }
 
 main = {

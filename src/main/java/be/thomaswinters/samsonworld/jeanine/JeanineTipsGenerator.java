@@ -107,7 +107,9 @@ public class JeanineTipsGenerator implements IChatBot {
     private boolean isValidTip(String tip) {
         return !tip.matches(".*\\d+\\..*")
                 && !tip.contains("http")
-                && !tip.contains("deze methode");
+                && !tip.contains("deze methode")
+                && !tip.contains("de methode")
+                && !tip.contains("deze oefening");
     }
 
     private String cleanTip(String tip) {
