@@ -6,6 +6,7 @@ import be.thomaswinters.pos.data.LemmaPOS;
 import be.thomaswinters.pos.data.POStag;
 import be.thomaswinters.pos.data.WordLemmaPOS;
 import be.thomaswinters.pos.data.WordPOS;
+import be.thomaswinters.sentence.SentenceUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -75,6 +76,8 @@ public class ActionExtractor {
 
     private boolean canBePartOfActionDescriptor(WordLemmaPOS wordLemmaPOS) {
 
+        String word = SentenceUtil.removeNonLetters(wordLemmaPOS.getWord().toLowerCase().trim());
+
         // Stop when hitting a punctuation
         if (wordLemmaPOS.getTag().equals(POStag.PUNCTUATION)) {
             return false;
@@ -84,11 +87,11 @@ public class ActionExtractor {
             return false;
         }
         // Stop when hitting an obvious onderwerp
-        if (onderwerpen.contains(wordLemmaPOS.getWord())) {
+        if (onderwerpen.contains(word)) {
             return false;
         }
         // Stop when hitting a bijzin
-        if (wordLemmaPOS.getWord().equals("die") || wordLemmaPOS.getWord().equals("dat")) {
+        if (word.equals("die") || word.equals("dat")) {
             return false;
         }
         if (wordLemmaPOS.getTag().equals(POStag.VERB)) {
