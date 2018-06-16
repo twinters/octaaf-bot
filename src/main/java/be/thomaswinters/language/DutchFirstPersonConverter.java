@@ -17,6 +17,7 @@ public class DutchFirstPersonConverter {
     public String firstToSecondPersonPronouns(String bitOfText) {
         return firstToOtherPersonPronouns(bitOfText, "jij", "jouw", "jou", "jezelf");
     }
+
     public String firstToThirdMalePersonPronouns(String bitOfText) {
         return firstToOtherPersonPronouns(bitOfText, "hij", "zijn", "hem", "zichzelf");
     }
@@ -64,10 +65,13 @@ public class DutchFirstPersonConverter {
         if (verb.equals("zijn")) {
             return "ben";
         }
-        if (verb.endsWith("zien")) {
+        if (verb.endsWith("ien")) {
             return verb.substring(0, verb.length() - 1);
         }
-        if (verb.endsWith("gaan")) {
+        if (verb.endsWith("oen")) {
+            return verb.substring(0, verb.length() - 1);
+        }
+        if (verb.endsWith("aan")) {
             return verb.substring(0, verb.length() - 2);
         }
         if (verb.contains("en")) {
@@ -78,7 +82,12 @@ public class DutchFirstPersonConverter {
             if (result.length() >= 2
                     && !vowels.contains(result.charAt(result.length() - 1))
                     && vowels.contains(result.charAt(result.length() - 2))
-                    && !tweeklanken.contains(result.substring(result.length() - 3, result.length() - 1))) {
+                    && !tweeklanken.contains(result.substring(result.length() - 3, result.length() - 1))
+                    // Verdubbel geen i
+                    && result.charAt(result.length() - 2) != 'i'
+                    // Uitzondering voor 'el'
+                    && !(result.substring(result.length() - 2,result.length() - 1).equals("el"))
+                    ) {
                 if (deurtjeOpenUitzonderingen.stream().noneMatch(verb::endsWith)) {
                     result = result.substring(0, result.length() - 1)
                             // Repeat last vowel
