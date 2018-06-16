@@ -22,8 +22,8 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
 
-    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen","kunnen");
-    private final Set<String> prohibitedSubjects = Set.of("en", "jij","jullie","wij","kan");
+    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen", "kunnen");
+    private final Set<String> prohibitedSubjects = Set.of("en", "jij", "jullie", "wij", "kan");
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
                     new ActionDescription("zijn", ""),
@@ -38,6 +38,10 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("hebben", "honger"));
 
     private final ActionExtractor actionExtractor;
+    private final Set<String> voorzetsels = Set.of("af", "toe", "weg", "op", "binnen", "door", "in", "langs",
+            "om", "over", "rond", "uit", "voorbij");
+    private final Set<String> voorzetselsUitzonderingPrefixen = Set.of("inter","intimideer","installeer","investeer",
+            "innoveer","overtref","overkomen","overwegen","overlasten","overschrijd","overtuig");
 
     public OctaafStoefGenerator() throws IOException {
         this.actionExtractor = new ActionExtractor();
@@ -85,6 +89,15 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     }
 
+    private Optional<String> getVoorzetselFor(String firstPersonVerb) {
+        return voorzetsels.stream()
+                .filter(e -> firstPersonVerb.startsWith(e)
+                        && voorzetselsUitzonderingPrefixen
+                        .stream()
+                        .noneMatch(firstPersonVerb::startsWith))
+                .filter(vz -> vz.length() < firstPersonVerb.length())
+                .findFirst();
+    }
 
     @Override
     public Stream<String> generateStream(String input) {
@@ -103,12 +116,21 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 .filter(e -> !prohibitedFullActions.contains(e))
                 .map(chosen -> {
                     String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
+                    Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
+                    if (optionalVoorzetsel.isPresent()) {
+                        firstPersonAction = firstPersonAction.substring(optionalVoorzetsel.get().length());
+                    }
+
                     String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
                     String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
                     return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
                             "Dat is nu toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
                             "\"zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...\" ja zo "
-                            + firstPersonAction + " ik " + restOfSentence + " hé!").trim().replaceAll("\\s{2,}", " ");
+                            + firstPersonAction + " ik "
+                            + restOfSentence
+                            + optionalVoorzetsel.map(s -> " " + s).orElse("")
+                            + " hé!")
+                            .trim().replaceAll("\\s{2,}", " ");
                 });
     }
 
