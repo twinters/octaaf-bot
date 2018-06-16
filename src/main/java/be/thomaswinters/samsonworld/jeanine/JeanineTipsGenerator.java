@@ -109,6 +109,7 @@ public class JeanineTipsGenerator implements IChatBot {
                 && !tip.contains("http")
                 && !tip.contains("deze methode")
                 && !tip.contains("de methode")
+                && !tip.contains("artikel")
                 && !tip.contains("deze oefening");
     }
 
@@ -155,9 +156,17 @@ public class JeanineTipsGenerator implements IChatBot {
 
                 List<String> tips = new ArrayList<>();
                 try {
-                    tips = getFirstTipsIn(getPages(actionText));
+                    tips = getFirstTipsIn(getPages(actionText))
+                            .stream()
+                            .map(SentenceUtil::getFirstSentence)
+                            .map(String::trim)
+                            .filter(e -> e.length() > 0)
+                            .filter(this::isValidTip)
+                            .map(this::decapitalise)
+                            .map(this::cleanTip)
+                            .collect(Collectors.toList());
                 } catch (HttpStatusException e) {
-                    if (e.getStatusCode()==404) {
+                    if (e.getStatusCode() == 404) {
                         System.out.println("404 for " + actionText);
                     }
                     e.printStackTrace();
@@ -166,15 +175,7 @@ public class JeanineTipsGenerator implements IChatBot {
                 }
 
                 if (!tips.isEmpty()) {
-                    Optional<String> selectedTip = tipSelector.select(
-                            tips.stream()
-                                    .map(SentenceUtil::getFirstSentence)
-                                    .map(String::trim)
-                                    .filter(e -> e.length() > 0)
-                                    .filter(this::isValidTip)
-                                    .map(this::decapitalise)
-                                    .map(this::cleanTip));
-
+                    Optional<String> selectedTip = tipSelector.select(tips.stream());
                     if (selectedTip.isPresent()) {
                         String tip = selectedTip.get();
                         // Check if action is something inverted (burgemeester)
