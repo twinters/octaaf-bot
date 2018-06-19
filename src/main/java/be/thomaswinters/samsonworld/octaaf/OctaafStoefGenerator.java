@@ -83,6 +83,11 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 return Optional.empty();
             }
         }
+        if (message.getUser().getScreenName().toLowerCase().equals("JeannineBot")) {
+            if (message.getText().contains("tip") || message.getText().contains("advies")) {
+                return Optional.of("Ja moeke, ja!");
+            }
+        }
         return generateRelated(message.getText());
     }
 
