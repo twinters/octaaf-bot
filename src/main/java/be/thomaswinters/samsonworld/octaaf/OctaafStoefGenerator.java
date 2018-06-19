@@ -22,10 +22,23 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
 
-    private final Set<String> prohibitedActions = Set.of("betekenen", "gaan", "zullen", "kunnen");
-    private final Set<String> prohibitedSubjects = Set.of("en", "jij", "jullie", "wij", "kan");
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
+                    // Prohibited verbs
+                    new ActionDescription("betekenen", ".*"),
+                    new ActionDescription("gaan", ".*"),
+                    new ActionDescription("zullen", ".*"),
+                    new ActionDescription("kunnen", ".*"),
+
+                    // Prohibited Subjects
+                    new ActionDescription(".*", "en"),
+                    new ActionDescription(".*", "jij"),
+                    new ActionDescription(".*", "jullie"),
+                    new ActionDescription(".*", "wij"),
+                    new ActionDescription(".*", ".*kan.*"),
+                    new ActionDescription(".*", ".*voltooid deelwoord.*"),
+
+                    // Prohibited full actions
                     new ActionDescription("zijn", ""),
                     new ActionDescription("zijn", "naar"),
                     new ActionDescription("worden", ""),
@@ -39,9 +52,9 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     private final ActionExtractor actionExtractor;
     private final Set<String> voorzetsels = Set.of("af", "toe", "weg", "op", "binnen", "door", "in", "langs",
-            "om", "over", "rond", "uit", "voorbij");
-    private final Set<String> voorzetselsUitzonderingPrefixen = Set.of("inter","intimideer","installeer","investeer",
-            "innoveer","overtref","overkomen","overwegen","overlasten","overschrijd","overtuig");
+            "om", "over", "rond", "uit", "voorbij", "aan");
+    private final Set<String> voorzetselsUitzonderingPrefixen = Set.of("inter", "intimideer", "installeer", "investeer",
+            "innoveer", "overtref", "overkomen", "overwegen", "overlasten", "overschrijd", "overtuig");
 
     public OctaafStoefGenerator() throws IOException {
         this.actionExtractor = new ActionExtractor();
@@ -111,9 +124,18 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
         return actionDescriptions
                 .stream()
-                .filter(e -> !prohibitedActions.contains(e.getVerb()))
-                .filter(e -> !prohibitedSubjects.contains(e.getRestOfSentence()))
-                .filter(e -> !prohibitedFullActions.contains(e))
+//                .peek(e -> {
+//                    if (prohibitedFullActions.stream()
+//                            .noneMatch(action -> e.getVerb().matches(action.getVerb())
+//                                    && e.getRestOfSentence().matches(action.getRestOfSentence()))) {
+//                        System.out.println("°ALLOWED: " + e);
+//                    } else {
+//                        System.out.println("_BLOCKED: " + e);
+//                    }
+//                })
+                .filter(e -> prohibitedFullActions.stream()
+                        .noneMatch(action -> e.getVerb().matches(action.getVerb())
+                                && e.getRestOfSentence().matches(action.getRestOfSentence())))
                 .map(chosen -> {
                     String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
                     Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
