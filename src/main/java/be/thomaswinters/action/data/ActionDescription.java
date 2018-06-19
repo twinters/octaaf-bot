@@ -7,6 +7,12 @@ public class ActionDescription {
     private final String restOfSentence;
 
     public ActionDescription(String verb, String restOfSentence) {
+        if (verb == null) {
+            throw new IllegalArgumentException("Given verb can't be null");
+        }
+        if (restOfSentence == null) {
+            throw new IllegalArgumentException("Rest of sentence can't be null");
+        }
         this.verb = verb;
         this.restOfSentence = restOfSentence;
     }
