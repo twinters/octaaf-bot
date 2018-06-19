@@ -27,12 +27,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JeanineTipsGenerator implements IChatBot {
-    private final WikihowSearcher searcher = new WikihowSearcher("nl");
+    private final WikihowSearcher searcher = WikihowSearcher.fromEnvironment("nl");
     private final WikiHowPageScraper wikiHowPageScraper = new WikiHowPageScraper("nl");
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
     private final ISelector<String> tipSelector = new TournamentSelection<>(tipFitnessFunction, 5);
     private final ITextGenerator templatedGenerator;
+    private final ActionExtractor actionExtractor = new ActionExtractor();
     private Replacers tipNegators = new Replacers(Arrays.asList(
             new Replacer("een", "geen", false, true),
             new Replacer("goed", "slecht", false, true),
