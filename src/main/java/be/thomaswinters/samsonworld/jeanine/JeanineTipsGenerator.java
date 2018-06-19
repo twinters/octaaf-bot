@@ -1,11 +1,14 @@
 package be.thomaswinters.samsonworld.jeanine;
 
+import be.thomaswinters.action.ActionExtractor;
+import be.thomaswinters.action.data.ActionDescription;
 import be.thomaswinters.chatbot.IChatBot;
 import be.thomaswinters.chatbot.data.IChatMessage;
 import be.thomaswinters.generator.fitness.IFitnessFunction;
 import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.TournamentSelection;
 import be.thomaswinters.language.DutchFirstPersonConverter;
+import be.thomaswinters.random.Picker;
 import be.thomaswinters.replacement.Replacer;
 import be.thomaswinters.replacement.Replacers;
 import be.thomaswinters.sentence.SentenceUtil;
@@ -16,6 +19,7 @@ import be.thomaswinters.textgeneration.domain.generators.ITextGenerator;
 import be.thomaswinters.textgeneration.domain.generators.commands.LambdaSingleGeneratorArgumentCommand;
 import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
 import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
+import be.thomaswinters.twitter.util.TwitterUtil;
 import be.thomaswinters.wikihow.WikiHowPageScraper;
 import be.thomaswinters.wikihow.WikihowSearcher;
 import be.thomaswinters.wikihow.data.Page;
@@ -120,7 +124,8 @@ public class JeanineTipsGenerator implements IChatBot {
                 .replaceAll("\\(.*\\)", "")
                 .replaceAll("\\[.*\\]", "")
                 .replaceAll("hij/zij", "hij")
-                .replaceAll("hem/haar", "hem");
+                .replaceAll("hem/haar", "hem")
+                .replaceAll("en/of", "en");
 
 
     }
@@ -135,59 +140,86 @@ public class JeanineTipsGenerator implements IChatBot {
 
     @Override
     public Optional<String> generateReply(IChatMessage message) {
-        if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
+        String messageText = SentenceUtil.splitOnSpaces(message.getText())
+                .filter(e -> !TwitterUtil.isTwitterWord(e))
+                .collect(Collectors.joining(" "));
 
-            String messageText = message.getText();
-            NamedGeneratorRegister register = new NamedGeneratorRegister();
+        NamedGeneratorRegister register = new NamedGeneratorRegister();
+
+        String generatorToUse = "reply";
+        Optional<ActionDescription> actionDescription = Optional.empty();
+
+        if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
+            generatorToUse = "ocraatReply";
 
             // Check if it contains an action
-            if (messageText.contains("!")) {
-                String actionText = messageText.substring(0, messageText.indexOf('!')).replaceAll("[Aa]h,? ?", "");
+            if (messageText.contains("!") && messageText.contains("specialiteiten")) {
+                String actionText = messageText
+                        .substring(0, messageText.indexOf('!'))
+                        .replaceAll("[Aa]h,? ?", "")
+                        .replaceAll(TwitterUtil.TWITTER_USERNAME_REGEX, "");
 
                 List<String> actionWords = SentenceUtil.splitOnSpaces(actionText).collect(Collectors.toList());
                 String actionVerb = actionWords.get(actionWords.size() - 1);
-                Optional<String> actionDescription = actionWords.size() > 1 ?
-                        Optional.of(SentenceUtil.joinWithSpaces(actionWords.subList(0, actionWords.size() - 1))) :
-                        Optional.empty();
+                actionDescription = Optional.of(new ActionDescription(
+                        actionVerb,
+                        SentenceUtil.joinWithSpaces(actionWords.subList(0, actionWords.size() - 1))));
 
-                register.createGenerator("actionVerb", actionVerb);
-                actionDescription.ifPresent(e ->
-                        register.createGenerator("actionDescription", e));
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            try {
+                actionDescription = Picker.pickOptional(actionExtractor.extractAction(messageText));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
+        if (actionDescription.isPresent()) {
 
-                List<String> tips = new ArrayList<>();
-                try {
-                    tips = getFirstTipsIn(getPages(actionText))
-                            .stream()
-                            .map(SentenceUtil::getFirstSentence)
-                            .map(String::trim)
-                            .filter(e -> e.length() > 0)
-                            .filter(this::isValidTip)
-                            .map(this::decapitalise)
-                            .map(this::cleanTip)
-                            .collect(Collectors.toList());
-                } catch (HttpStatusException e) {
-                    if (e.getStatusCode() == 404) {
-                        System.out.println("404 for " + actionText);
-                    }
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            String actionVerb = actionDescription.get().getVerb();
+            String actionSentence = actionDescription.get().getRestOfSentence().trim();
+            String fullActionText = actionSentence + " " + actionVerb;
 
-                if (!tips.isEmpty()) {
-                    Optional<String> selectedTip = tipSelector.select(tips.stream());
-                    if (selectedTip.isPresent()) {
-                        String tip = selectedTip.get();
-                        // Check if action is something inverted (burgemeester)
-                        if (actionText.contains("niet") || actionText.contains("geen")) {
-                            tip = negateTip(tip);
-                        }
-                        register.createGenerator("tip", tip);
-                    }
-                }
+            register.createGenerator("actionVerb", actionVerb);
+            if (actionSentence.length() > 0) {
+                register.createGenerator("actionDescription", actionSentence);
+
             }
 
+
+            List<String> tips = new ArrayList<>();
+            try {
+                tips = getFirstTipsIn(getPages(fullActionText))
+                        .stream()
+                        .map(SentenceUtil::getFirstSentence)
+                        .map(String::trim)
+                        .filter(e -> e.length() > 0)
+                        .filter(this::isValidTip)
+                        .map(this::decapitalise)
+                        .map(this::cleanTip)
+                        .collect(Collectors.toList());
+            } catch (HttpStatusException e) {
+                if (e.getStatusCode() == 404) {
+                    System.out.println("404 for " + fullActionText);
+                }
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (!tips.isEmpty()) {
+                Optional<String> selectedTip = tipSelector.select(tips.stream());
+                if (selectedTip.isPresent()) {
+                    String tip = selectedTip.get();
+                    // Check if action is something inverted (burgemeester)
+                    if (fullActionText.contains("niet") || fullActionText.contains("geen")) {
+                        tip = negateTip(tip);
+                    }
+                    register.createGenerator("tip", tip);
+                }
+            }
             String result =
                     templatedGenerator.generate(
                             new TextGeneratorContext(register, true)
@@ -197,5 +229,7 @@ public class JeanineTipsGenerator implements IChatBot {
             }
         }
         return Optional.empty();
+
+
     }
 }
