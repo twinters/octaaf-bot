@@ -32,15 +32,20 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
                     // Prohibited Subjects
                     new ActionDescription(".*", "en"),
+                    new ActionDescription(".*", "en .*"),
+                    new ActionDescription(".*", "of"),
+                    new ActionDescription(".*", "of .*"),
                     new ActionDescription(".*", "jij"),
                     new ActionDescription(".*", "jullie"),
                     new ActionDescription(".*", "wij"),
                     new ActionDescription(".*", ".*kan.*"),
                     new ActionDescription(".*", ".*voltooid deelwoord.*"),
+                    new ActionDescription(".*", ".*genitief van de.*"),
 
                     // Prohibited full actions
                     new ActionDescription("zijn", ""),
                     new ActionDescription("zijn", "naar"),
+                    new ActionDescription("zijn", ".* te .*"),
                     new ActionDescription("worden", ""),
                     new ActionDescription("hebben", ""),
                     new ActionDescription("gaan", ""),
@@ -48,7 +53,12 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("stellen", ""),
                     new ActionDescription("geven", ""),
                     new ActionDescription("geven", "te"),
-                    new ActionDescription("hebben", "honger"));
+                    new ActionDescription("hebben", "honger"),
+
+                    // Albertobot counter
+
+                    new ActionDescription("zijn", ".*sterven van de honger.*")
+                    );
 
     private final ActionExtractor actionExtractor;
     private final Set<String> voorzetsels = Set.of("af", "toe", "weg", "op", "binnen", "door", "in", "langs",
@@ -78,7 +88,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 return Optional.empty();
             }
         }
-        if (message.getUser().getScreenName().toLowerCase().equals("AlbertoBot")) {
+        if (message.getUser().getScreenName().toLowerCase().equals("AlbertBot")) {
             if (message.getText().contains("AL-BER-TO")) {
                 return Optional.empty();
             }
