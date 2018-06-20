@@ -21,17 +21,17 @@ hobbyclubTip = ((tip|advies) van (mijn hobbyclub|de hobbyclub, waar ik voorzitst
 // Template types
 vanZijnOuders = {
 	1: ((<ah> ){.2}dat is weer typisch<he>(, <hetAction.firstToThirdMalePersonPronouns>){.7}|Typisch)... Dat heeft hij( weer){.5} van zijn vader<he>!
-	1: ((<ah> (maar ){.1}){.5}goed zijn in <hetAction.firstToThirdMalePersonPronouns>, ){.7}(ja, ){.5}dat heeft hij van (zijn moeder|mij)<he>!
+	1: ((<ah> (maar ){.1}){.5}goed zijn in <hetAction.firstToThirdMalePersonPronouns>, ){.7}(ja, ){.7}dat heeft hij van (zijn moeder|mij)<he>!
 }
 tipGeving = {
-	5: <octaafJongen> (je kent mijn( goede){.5}|een) <hobbyclubTip> <daarover>: <tip>
+	4: <octaafJongen> (je kent mijn( goede){.5}|een) <hobbyclubTip> <daarover>: <tip>
 	2: (<octaafJongen> je|Je) (weet|herinnert je nog) wat ik je( daarover){.5} heb gezegd<he>(! <tip.capitalise>|: <tip>)
 	1: (En onthoud goed|Je weet het<he>),( Octaaf,){.5} mijn jongen: <tip>
 }
 
 // Main
 octaafReply = {
-	9: (<tipGeving.capitalise>/<vanZijnOuders.capitalise>)
+	12: (<tipGeving.capitalise>/<vanZijnOuders.capitalise>)
 	1: <vanZijnOuders.capitalise>
 }
 
