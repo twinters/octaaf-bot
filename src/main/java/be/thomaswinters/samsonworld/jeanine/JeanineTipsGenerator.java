@@ -15,8 +15,8 @@ import be.thomaswinters.sentence.SentenceUtil;
 import be.thomaswinters.textgeneration.domain.context.TextGeneratorContext;
 import be.thomaswinters.textgeneration.domain.factories.command.CommandFactory;
 import be.thomaswinters.textgeneration.domain.factories.command.SingleTextGeneratorArgumentCommandFactory;
-import be.thomaswinters.textgeneration.domain.generators.ITextGenerator;
 import be.thomaswinters.textgeneration.domain.generators.commands.LambdaSingleGeneratorArgumentCommand;
+import be.thomaswinters.textgeneration.domain.generators.databases.DeclarationFileTextGenerator;
 import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
 import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
 import be.thomaswinters.twitter.util.TwitterUtil;
@@ -36,7 +36,7 @@ public class JeanineTipsGenerator implements IChatBot {
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
     private final ISelector<String> tipSelector = new TournamentSelection<>(tipFitnessFunction, 5);
-    private final ITextGenerator templatedGenerator;
+    private final DeclarationFileTextGenerator templatedGenerator;
     private final ActionExtractor actionExtractor = new ActionExtractor();
     private Replacers tipNegators = new Replacers(Arrays.asList(
             new Replacer("een", "geen", false, true),
@@ -150,7 +150,7 @@ public class JeanineTipsGenerator implements IChatBot {
         Optional<ActionDescription> actionDescription = Optional.empty();
 
         if (message.getUser().getScreenName().toLowerCase().contains("octaaf")) {
-            generatorToUse = "ocraatReply";
+            generatorToUse = "octaafReply";
 
             // Check if it contains an action
             if (messageText.contains("!") && messageText.contains("specialiteiten")) {
@@ -221,7 +221,7 @@ public class JeanineTipsGenerator implements IChatBot {
                 }
             }
             String result =
-                    templatedGenerator.generate(
+                    templatedGenerator.generate(generatorToUse,
                             new TextGeneratorContext(register, true)
                     );
             if (result.trim().length() > 0) {
