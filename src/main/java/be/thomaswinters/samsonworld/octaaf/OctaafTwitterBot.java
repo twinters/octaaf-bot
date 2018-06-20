@@ -6,7 +6,6 @@ import be.thomaswinters.twitter.bot.GeneratorTwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBotExecutor;
 import be.thomaswinters.twitter.exception.TwitterUnchecker;
-import be.thomaswinters.twitter.exception.UncheckedTwitterException;
 import be.thomaswinters.twitter.tweetsfetcher.*;
 import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyParticipatedFilter;
 import be.thomaswinters.twitter.userfetcher.ListUserFetcher;
@@ -56,13 +55,9 @@ public class OctaafTwitterBot {
         IStreamGenerator<Long> alreadyRepliedToByFriends =
                 botFriendsTweetsFetcher
                         .mapToRepliedToIds()
-                        .seed(() -> {
-                            try {
-                                return TwitterAnalysisUtil.getLastReplyStatus(octaafTwitter).map(Status::getId).orElse(1L);
-                            } catch (TwitterException e) {
-                                throw new UncheckedTwitterException(e);
-                            }
-                        });
+                        .seed(() -> TwitterUnchecker.uncheck(
+                                TwitterAnalysisUtil::getLastReplyStatus, octaafTwitter)
+                                .map(Status::getId).orElse(1L));
 
         ITweetsFetcher tweetsToAnswerOctaaf =
                 TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter)
@@ -76,14 +71,15 @@ public class OctaafTwitterBot {
                                 new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
                                         .filterRandomly(octaafTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 12)
+                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 16)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
                         .filterRandomlyIf(octaafTwitter, status ->
-                                alreadyRepliedToByFriends
-                                        .generateStream()
-                                        .noneMatch(id -> id.equals(status.getId())), 1, 3)
+                                !status.getUser().getScreenName().toLowerCase().contains("samson") &&
+                                        alreadyRepliedToByFriends
+                                                .generateStream()
+                                                .noneMatch(id -> id.equals(status.getId())), 1, 3)
                         .filterOutOwnTweets(octaafTwitter);
 
 
@@ -101,7 +97,7 @@ public class OctaafTwitterBot {
                                         )
                                         .filterRandomly(jeanineTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(jeanineTwitter, e -> botFriends.contains(e.getUser()), 1, 12)
+                        .filterRandomlyIf(jeanineTwitter, e -> botFriends.contains(e.getUser()), 1, 22)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages

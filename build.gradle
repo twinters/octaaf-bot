@@ -31,7 +31,7 @@ dependencies {
 heroku {
     appName = "octaaf-bot"
     processTypes(
-            worker: "java -jar build/libs/" + appName + ".jar -mode post "
+            worker: "java -jar build/libs/" + appName + ".jar -mode reply"
     )
     includes = ["D:\\Self\\Repositories\\" + appName + "\\system.properties"]
 }
