@@ -1,7 +1,7 @@
 package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.generator.streamgenerator.IStreamGenerator;
-import be.thomaswinters.samsonworld.jeanine.JeanineTipsGenerator;
+import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.GeneratorTwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBotExecutor;
@@ -26,7 +26,7 @@ public class OctaafTwitterBot {
     public static void main(String[] args) throws TwitterException, IOException {
         DeBolleBots deBolleBots = new OctaafTwitterBot().buildDeBolleBots();
         TwitterBot octaafBot = deBolleBots.octaafBot;
-        TwitterBot jeanineBot = deBolleBots.jeanineBot;
+        TwitterBot jeanineBot = deBolleBots.jeannineBot;
 
         // First reply to all unreplied, as this will be influenced by Octaaf.
         jeanineBot.replyToAllUnrepliedMentions();
@@ -41,10 +41,10 @@ public class OctaafTwitterBot {
         long samsonBotsList = 1006565134796500992L;
 
         Twitter octaafTwitter = TwitterLogin.getTwitterFromEnvironment("octaaf");
-        Twitter jeanineTwitter = TwitterLogin.getTwitterFromEnvironment("jeanine");
+        Twitter jeannineTwitter = TwitterLogin.getTwitterFromEnvironment("jeannine");
 
         OctaafStoefGenerator octaafStoefGenerator = new OctaafStoefGenerator();
-        JeanineTipsGenerator jeanineTipsGenerator = new JeanineTipsGenerator();
+        JeannineTipsGenerator jeannineTipsGenerator = new JeannineTipsGenerator();
 
 
         // Bot friends
@@ -84,28 +84,28 @@ public class OctaafTwitterBot {
 
 
         ITweetsFetcher tweetsToAnswerJeanine =
-                TwitterBot.MENTIONS_RETRIEVER.apply(jeanineTwitter)
+                TwitterBot.MENTIONS_RETRIEVER.apply(jeannineTwitter)
                         .combineWith(
-                                new TimelineTweetsFetcher(jeanineTwitter)
+                                new TimelineTweetsFetcher(jeannineTwitter)
                                         .combineWith(
                                                 botFriendsTweetsFetcher)
-                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, jeanineTwitter, 3)),
-                                new SearchTweetsFetcher(jeanineTwitter, "jeannine de bolle")
+                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, jeannineTwitter, 3)),
+                                new SearchTweetsFetcher(jeannineTwitter, "jeannine de bolle")
                                         .combineWith(
-                                                new SearchTweetsFetcher(jeanineTwitter, "jeanine de bolle"),
-                                                new SearchTweetsFetcher(jeanineTwitter, "mevrouw praline")
+                                                new SearchTweetsFetcher(jeannineTwitter, "jeanine de bolle"),
+                                                new SearchTweetsFetcher(jeannineTwitter, "mevrouw praline")
                                         )
-                                        .filterRandomly(jeanineTwitter, 1, 4))
+                                        .filterRandomly(jeannineTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(jeanineTwitter, e -> botFriends.contains(e.getUser()), 1, 22)
+                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 22)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
-                        .filterRandomlyIf(jeanineTwitter, status ->
+                        .filterRandomlyIf(jeannineTwitter, status ->
                                 alreadyRepliedToByFriends
                                         .generateStream()
                                         .noneMatch(id -> id.equals(status.getId())), 1, 3)
-                        .filterOutOwnTweets(jeanineTwitter);
+                        .filterOutOwnTweets(jeannineTwitter);
 
         TwitterBot octaafBot =
                 new GeneratorTwitterBot(octaafTwitter,
@@ -113,15 +113,15 @@ public class OctaafTwitterBot {
                         octaafStoefGenerator,
                         tweetsToAnswerOctaaf);
 
-        TwitterBot jeanineBot =
-                new GeneratorTwitterBot(jeanineTwitter,
+        TwitterBot jeannineBot =
+                new GeneratorTwitterBot(jeannineTwitter,
                         Optional::empty,
-                        jeanineTipsGenerator,
+                        jeannineTipsGenerator,
                         tweetsToAnswerJeanine);
-        octaafBot.addPostListener(jeanineBot::replyToStatus);
-        octaafBot.addReplyListener((message, toMessage) -> jeanineBot.replyToStatus(message));
+        octaafBot.addPostListener(jeannineBot::replyToStatus);
+        octaafBot.addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
 
-        return new DeBolleBots(octaafBot, jeanineBot);
+        return new DeBolleBots(octaafBot, jeannineBot);
     }
 
     public TwitterBot build() throws IOException, TwitterException {
@@ -130,11 +130,11 @@ public class OctaafTwitterBot {
 
     private static class DeBolleBots {
         private final TwitterBot octaafBot;
-        private final TwitterBot jeanineBot;
+        private final TwitterBot jeannineBot;
 
         public DeBolleBots(TwitterBot octaafBot, TwitterBot jeanineBot) {
             this.octaafBot = octaafBot;
-            this.jeanineBot = jeanineBot;
+            this.jeannineBot = jeanineBot;
         }
     }
 }

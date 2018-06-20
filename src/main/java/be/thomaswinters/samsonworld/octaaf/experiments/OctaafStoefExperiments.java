@@ -1,10 +1,9 @@
 package be.thomaswinters.samsonworld.octaaf.experiments;
 
-import be.thomaswinters.action.data.ActionDescription;
 import be.thomaswinters.chatbot.data.ChatMessage;
 import be.thomaswinters.chatbot.data.ChatUser;
 import be.thomaswinters.chatbot.data.IChatUser;
-import be.thomaswinters.samsonworld.jeanine.JeanineTipsGenerator;
+import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
 import be.thomaswinters.samsonworld.octaaf.OctaafStoefGenerator;
 import be.thomaswinters.twitter.tweetsfetcher.SearchTweetsFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
@@ -32,7 +31,7 @@ public class OctaafStoefExperiments {
 
     private static void jeanineTest() throws IOException {
         IChatUser octaafUser = new ChatUser("OctaafBot");
-        JeanineTipsGenerator jeanine  = new JeanineTipsGenerator();
+        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
         System.out.println(jeanine.generateReply(new ChatMessage(Optional.empty(),"transporteren!", octaafUser)));
     }
 
@@ -44,7 +43,7 @@ public class OctaafStoefExperiments {
     private static void reactTo(String file, String botName) throws IOException {
         OctaafStoefGenerator octaaf = new OctaafStoefGenerator();
         IChatUser octaafUser = new ChatUser("OctaafBot");
-        JeanineTipsGenerator jeanine  = new JeanineTipsGenerator();
+        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
 
         IChatUser chatUser = new ChatUser(botName);
 

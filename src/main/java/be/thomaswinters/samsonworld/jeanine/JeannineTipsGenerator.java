@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JeanineTipsGenerator implements IChatBot {
+public class JeannineTipsGenerator implements IChatBot {
     private final WikihowSearcher searcher = WikihowSearcher.fromEnvironment("nl");
     private final WikiHowPageScraper wikiHowPageScraper = new WikiHowPageScraper("nl");
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
@@ -47,7 +47,7 @@ public class JeanineTipsGenerator implements IChatBot {
             new Replacer("ook", "zeker niet", false, true)
     ));
 
-    public JeanineTipsGenerator() throws IOException {
+    public JeannineTipsGenerator() throws IOException {
         List<CommandFactory> customCommands = Arrays.asList(
                 new SingleTextGeneratorArgumentCommandFactory(
                         "firstToThirdMalePersonPronouns",
