@@ -18,6 +18,7 @@ dependencies {
     compile project(':chatbot-util')
     compile project(':wikihow-scraper')
     compile project(':words')
+    compile project(':dutch-datasets')
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'com.google.guava:guava:11.0.2'
 
