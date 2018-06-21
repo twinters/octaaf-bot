@@ -1,15 +1,19 @@
 package be.thomaswinters.samsonworld.octaaf;
 
+import be.thomaswinters.chatbot.data.IChatMessage;
+import be.thomaswinters.generator.streamgenerator.IStreamGenerator;
 import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.GeneratorTwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBotExecutor;
+import be.thomaswinters.twitter.bot.chatbot.data.TwitterChatMessage;
 import be.thomaswinters.twitter.exception.TwitterUnchecker;
 import be.thomaswinters.twitter.tweetsfetcher.*;
 import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyParticipatedFilter;
 import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyRepliedToByOthersFilter;
 import be.thomaswinters.twitter.userfetcher.ListUserFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
+import be.thomaswinters.twitter.util.TwitterUtil;
 import be.thomaswinters.util.DataLoader;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -59,6 +63,7 @@ public class OctaafTwitterBot {
         Collection<User> botFriends = ListUserFetcher.getUsers(octaafTwitter, samsonBotsList);
         TweetsFetcherCache botFriendsTweetsFetcher =
                 new AdvancedListTweetsFetcher(octaafTwitter, samsonBotsList, false, true)
+//                new ListTweetsFetcher(octaafTwitter, samsonBotsList)
                         .cache(Duration.ofMinutes(5));
         AlreadyRepliedToByOthersFilter alreadyRepliedToByOthersFilter =
                 new AlreadyRepliedToByOthersFilter(botFriendsTweetsFetcher);
@@ -85,6 +90,22 @@ public class OctaafTwitterBot {
                         .filterOutOwnTweets(octaafTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
+        IStreamGenerator<IChatMessage> tweetsToQuoteRetweetOctaaf =
+                TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter)
+                        .combineWith(
+                                new TimelineTweetsFetcher(octaafTwitter),
+                                botFriendsTweetsFetcher,
+                                new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle"),
+                                new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson"))
+                        // Filter out own tweets & retweets
+                        .filterOutRetweets()
+                        .filterOutOwnTweets(octaafTwitter)
+                        .filterOutMessagesWithWords(prohibitedWordsToAnswer)
+                        .cache(Duration.ofMinutes(5))
+                        .seed(() -> TwitterUnchecker.uncheck(TwitterUtil::getLastRealTweet, octaafTwitter))
+                        .distinct()
+                        .map(status -> new TwitterChatMessage(octaafTwitter, status));
+
 
         ITweetsFetcher tweetsToAnswerJeanine =
                 TwitterBot.MENTIONS_RETRIEVER.apply(jeannineTwitter)
@@ -110,7 +131,9 @@ public class OctaafTwitterBot {
 
         TwitterBot octaafBot =
                 new GeneratorTwitterBot(octaafTwitter,
-                        Optional::empty,
+                        octaafStoefGenerator
+                                .reactToStreamGenerator(tweetsToQuoteRetweetOctaaf)
+                                .reduceToGenerator(),
                         octaafStoefGenerator,
                         tweetsToAnswerOctaaf);
 
@@ -119,6 +142,8 @@ public class OctaafTwitterBot {
                         Optional::empty,
                         jeannineTipsGenerator,
                         tweetsToAnswerJeanine);
+
+        // Make Jeanine react to Octaaf tweets
         octaafBot.addPostListener(jeannineBot::replyToStatus);
         octaafBot.addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
 

@@ -143,6 +143,7 @@ public class JeannineTipsGenerator implements IChatBot {
         String messageText = SentenceUtil.splitOnSpaces(message.getText())
                 .filter(e -> !TwitterUtil.isTwitterWord(e))
                 .collect(Collectors.joining(" "));
+        System.out.println("REPLYIING TO " + messageText);
 
         NamedGeneratorRegister register = new NamedGeneratorRegister();
 
