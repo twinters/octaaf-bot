@@ -58,7 +58,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     // Albertobot counter
 
                     new ActionDescription("zijn", ".*sterven van de honger.*")
-                    );
+            );
 
     private final ActionExtractor actionExtractor;
     private final Set<String> voorzetsels = Set.of("af", "toe", "weg", "op", "binnen", "door", "in", "langs",
@@ -94,8 +94,10 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
             }
         }
         if (message.getUser().getScreenName().toLowerCase().equals("JeannineBot")) {
-            if ( (message.getText().contains("tip") || message.getText().contains("advies"))) {
-                if (Math.random()<.75d) {
+            if ((message.getText().contains("tip")
+                    || message.getText().contains("advies"))
+                    || message.getText().contains("onthoud")) {
+                if (Math.random() < .8d) {
                     return Optional.of("Ja moeke, ja!");
                 }
             }

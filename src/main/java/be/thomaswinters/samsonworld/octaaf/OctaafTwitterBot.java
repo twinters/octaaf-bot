@@ -71,9 +71,9 @@ public class OctaafTwitterBot {
                                                 botFriendsTweetsFetcher)
                                         .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, octaafTwitter, 3)),
                                 new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle")
-                                        .filterRandomly(octaafTwitter, 1, 4),
+                                        .filterRandomly(octaafTwitter, 1, 3),
                                 new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
-                                        .filterRandomly(octaafTwitter, 1, 4))
+                                        .filterRandomly(octaafTwitter, 1, 3))
                         // Filter out botfriends tweets randomly
                         .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 18)
                         // Filter out own tweets & retweets
@@ -100,7 +100,7 @@ public class OctaafTwitterBot {
                                         )
                                         .filterRandomly(jeannineTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 25)
+                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 20)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
