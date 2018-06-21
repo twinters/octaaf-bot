@@ -11,6 +11,7 @@ import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyParticipatedFilter;
 import be.thomaswinters.twitter.userfetcher.ListUserFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
 import be.thomaswinters.twitter.util.analysis.TwitterAnalysisUtil;
+import be.thomaswinters.util.DataLoader;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -19,9 +20,17 @@ import twitter4j.User;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OctaafTwitterBot {
+
+    private static final List<String> prohibitedWordsToAnswer = Stream.concat(
+            DataLoader.readLinesUnchecked("explicit/bad-words.txt").stream(),
+            DataLoader.readLinesUnchecked("explicit/sensitive-topics.txt").stream())
+            .collect(Collectors.toList());
 
     public static void main(String[] args) throws TwitterException, IOException {
         DeBolleBots deBolleBots = new OctaafTwitterBot().buildDeBolleBots();
@@ -37,6 +46,7 @@ public class OctaafTwitterBot {
     }
 
     public DeBolleBots buildDeBolleBots() throws IOException {
+
 
         long samsonBotsList = 1006565134796500992L;
 
@@ -80,7 +90,8 @@ public class OctaafTwitterBot {
                                         alreadyRepliedToByFriends
                                                 .generateStream()
                                                 .noneMatch(id -> id.equals(status.getId())), 1, 3)
-                        .filterOutOwnTweets(octaafTwitter);
+                        .filterOutOwnTweets(octaafTwitter)
+                        .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
 
         ITweetsFetcher tweetsToAnswerJeanine =
@@ -105,7 +116,8 @@ public class OctaafTwitterBot {
                                 alreadyRepliedToByFriends
                                         .generateStream()
                                         .noneMatch(id -> id.equals(status.getId())), 1, 3)
-                        .filterOutOwnTweets(jeannineTwitter);
+                        .filterOutOwnTweets(jeannineTwitter)
+                        .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
         TwitterBot octaafBot =
                 new GeneratorTwitterBot(octaafTwitter,
