@@ -82,7 +82,7 @@ public class DutchFirstPersonConverter {
             if (result.length() >= 2
                     && !vowels.contains(result.charAt(result.length() - 1))
                     && vowels.contains(result.charAt(result.length() - 2))
-                    && !tweeklanken.contains(result.substring(result.length() - 3, result.length() - 1))
+                    && (result.length() >= 3 && !tweeklanken.contains(result.substring(result.length() - 3, result.length() - 1)))
                     // Verdubbel geen i
                     && result.charAt(result.length() - 2) != 'i'
                     // Uitzondering voor 'el'
