@@ -36,7 +36,7 @@ octaafReply = {
 }
 
 reply = {
-	<ah> ik heb <daarover>( nog){.5}een <hobbyclubTip>(! <tip.capitalise>|: <tip.lower>)
+	<ah> ik heb <daarover>( nog){.5} een <hobbyclubTip>(! <tip.capitalise>|: <tip.lower>)
 }
 
 main = <octaafReply>

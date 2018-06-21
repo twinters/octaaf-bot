@@ -61,7 +61,7 @@ public class JeannineTipsGenerator implements IChatBot {
                                 "firstToSecondPersonPronouns"))
         );
         this.templatedGenerator = DeclarationsFileParser.createTemplatedGenerator(
-                ClassLoader.getSystemResource("templates/jeanine.decl"),
+                ClassLoader.getSystemResource("templates/jeannine.decl"),
                 customCommands
         );
     }
