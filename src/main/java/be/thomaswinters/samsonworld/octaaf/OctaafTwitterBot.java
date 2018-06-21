@@ -18,6 +18,7 @@ import twitter4j.TwitterException;
 import twitter4j.User;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -89,7 +90,7 @@ public class OctaafTwitterBot {
                                 !status.getUser().getScreenName().toLowerCase().contains("samson") &&
                                         alreadyRepliedToByFriends
                                                 .generateStream()
-                                                .noneMatch(id -> id.equals(status.getId())), 1, 3)
+                                                .anyMatch(id -> id.equals(status.getId())), 1, 3)
                         .filterOutOwnTweets(octaafTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
