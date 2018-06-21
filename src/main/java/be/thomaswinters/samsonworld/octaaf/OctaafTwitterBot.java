@@ -1,6 +1,5 @@
 package be.thomaswinters.samsonworld.octaaf;
 
-import be.thomaswinters.generator.streamgenerator.IStreamGenerator;
 import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.GeneratorTwitterBot;
 import be.thomaswinters.twitter.bot.TwitterBot;
@@ -8,17 +7,15 @@ import be.thomaswinters.twitter.bot.TwitterBotExecutor;
 import be.thomaswinters.twitter.exception.TwitterUnchecker;
 import be.thomaswinters.twitter.tweetsfetcher.*;
 import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyParticipatedFilter;
+import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyRepliedToByOthersFilter;
 import be.thomaswinters.twitter.userfetcher.ListUserFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
-import be.thomaswinters.twitter.util.analysis.TwitterAnalysisUtil;
 import be.thomaswinters.util.DataLoader;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -63,12 +60,8 @@ public class OctaafTwitterBot {
         TweetsFetcherCache botFriendsTweetsFetcher =
                 new AdvancedListTweetsFetcher(octaafTwitter, samsonBotsList, false, true)
                         .cache(Duration.ofMinutes(5));
-        IStreamGenerator<Long> alreadyRepliedToByFriends =
-                botFriendsTweetsFetcher
-                        .mapToRepliedToIds()
-                        .seed(() -> TwitterUnchecker.uncheck(
-                                TwitterAnalysisUtil::getLastReplyStatus, octaafTwitter)
-                                .map(Status::getId).orElse(1L));
+        AlreadyRepliedToByOthersFilter alreadyRepliedToByOthersFilter =
+                new AlreadyRepliedToByOthersFilter(botFriendsTweetsFetcher);
 
         ITweetsFetcher tweetsToAnswerOctaaf =
                 TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter)
@@ -82,15 +75,13 @@ public class OctaafTwitterBot {
                                 new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
                                         .filterRandomly(octaafTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 16)
+                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 18)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
                         .filterRandomlyIf(octaafTwitter, status ->
                                 !status.getUser().getScreenName().toLowerCase().contains("samson") &&
-                                        alreadyRepliedToByFriends
-                                                .generateStream()
-                                                .anyMatch(id -> id.equals(status.getId())), 1, 3)
+                                        alreadyRepliedToByOthersFilter.test(status), 1, 5)
                         .filterOutOwnTweets(octaafTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
@@ -109,14 +100,11 @@ public class OctaafTwitterBot {
                                         )
                                         .filterRandomly(jeannineTwitter, 1, 4))
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 22)
+                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 25)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
-                        .filterRandomlyIf(jeannineTwitter, status ->
-                                alreadyRepliedToByFriends
-                                        .generateStream()
-                                        .noneMatch(id -> id.equals(status.getId())), 1, 3)
+                        .filterRandomlyIf(jeannineTwitter, alreadyRepliedToByOthersFilter, 1, 3)
                         .filterOutOwnTweets(jeannineTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
