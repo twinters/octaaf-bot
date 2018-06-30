@@ -141,7 +141,7 @@ public class OctaafTwitterBot {
                         BehaviourCreator.createQuoterFromMessageReactor(
                                 octaafStoefGenerator,
                                 tweetsToQuoteRetweetOctaaf
-                        ).retry(5),
+                        ).retry(10),
                         BehaviourCreator.fromMessageReactor(octaafStoefGenerator),
                         tweetsToAnswerOctaaf);
 
