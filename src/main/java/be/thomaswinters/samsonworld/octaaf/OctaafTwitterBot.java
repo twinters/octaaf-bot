@@ -1,12 +1,11 @@
 package be.thomaswinters.samsonworld.octaaf;
 
-import be.thomaswinters.chatbot.data.IChatMessage;
-import be.thomaswinters.generator.streamgenerator.IStreamGenerator;
+import be.thomaswinters.generator.generators.IGenerator;
+import be.thomaswinters.generator.selection.RandomUniqueSelector;
 import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
-import be.thomaswinters.twitter.bot.GeneratorTwitterBot;
+import be.thomaswinters.twitter.bot.BehaviourCreator;
 import be.thomaswinters.twitter.bot.TwitterBot;
-import be.thomaswinters.twitter.bot.TwitterBotExecutor;
-import be.thomaswinters.twitter.bot.chatbot.data.TwitterChatMessage;
+import be.thomaswinters.twitter.bot.executor.TwitterBotExecutor;
 import be.thomaswinters.twitter.exception.TwitterUnchecker;
 import be.thomaswinters.twitter.tweetsfetcher.*;
 import be.thomaswinters.twitter.tweetsfetcher.filter.AlreadyParticipatedFilter;
@@ -15,6 +14,7 @@ import be.thomaswinters.twitter.userfetcher.ListUserFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;
 import be.thomaswinters.twitter.util.TwitterUtil;
 import be.thomaswinters.util.DataLoader;
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,13 +73,14 @@ public class OctaafTwitterBot {
                                 new TimelineTweetsFetcher(octaafTwitter)
                                         .combineWith(
                                                 botFriendsTweetsFetcher)
-                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, octaafTwitter, 3)),
-                                new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle")
-                                        .filterRandomly(octaafTwitter, 1, 3),
-                                new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
-                                        .filterRandomly(octaafTwitter, 1, 3))
+                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, octaafTwitter, 3))
+//                                new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle")
+//                                        .filterRandomly(octaafTwitter, 1, 3),
+//                                new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
+//                                        .filterRandomly(octaafTwitter, 1, 3)
+                        )
                         // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 18)
+                        .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 15)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         // Filter out already replied to messages
@@ -90,7 +90,7 @@ public class OctaafTwitterBot {
                         .filterOutOwnTweets(octaafTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
-        IStreamGenerator<IChatMessage> tweetsToQuoteRetweetOctaaf =
+        IGenerator<Status> tweetsToQuoteRetweetOctaaf =
                 TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter)
                         .combineWith(
                                 new TimelineTweetsFetcher(octaafTwitter),
@@ -104,7 +104,9 @@ public class OctaafTwitterBot {
                         .cache(Duration.ofMinutes(5))
                         .seed(() -> TwitterUnchecker.uncheck(TwitterUtil::getLastRealTweet, octaafTwitter))
                         .distinct()
-                        .map(status -> new TwitterChatMessage(octaafTwitter, status));
+//                        .peek(System.out::println)
+//                        .map(status -> (IChatMessage) new TwitterChatMessage(octaafTwitter, status))
+                        .reduceToGenerator(new RandomUniqueSelector<>());
 
 
         ITweetsFetcher tweetsToAnswerJeanine =
@@ -129,23 +131,31 @@ public class OctaafTwitterBot {
                         .filterOutOwnTweets(jeannineTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
+//        IFitnessFunction<String> octaafQuoteRetweetSelector = tweetText -> {
+//          if (tweetText.)
+//        };
+
+
         TwitterBot octaafBot =
-                new GeneratorTwitterBot(octaafTwitter,
-                        octaafStoefGenerator
-                                .reactToStreamGenerator(tweetsToQuoteRetweetOctaaf)
-                                .reduceToGenerator(),
-                        octaafStoefGenerator,
+                new TwitterBot(octaafTwitter,
+                        BehaviourCreator.createQuoterFromMessageReactor(
+                                octaafStoefGenerator,
+                                tweetsToQuoteRetweetOctaaf
+                        ).retry(5),
+                        BehaviourCreator.fromMessageReactor(octaafStoefGenerator),
                         tweetsToAnswerOctaaf);
 
         TwitterBot jeannineBot =
-                new GeneratorTwitterBot(jeannineTwitter,
-                        Optional::empty,
-                        jeannineTipsGenerator,
+                new TwitterBot(jeannineTwitter,
+                        BehaviourCreator.empty(),
+                        BehaviourCreator.fromMessageReactor(
+                                jeannineTipsGenerator
+                        ),
                         tweetsToAnswerJeanine);
 
         // Make Jeanine react to Octaaf tweets
-        octaafBot.addPostListener(jeannineBot::replyToStatus);
-        octaafBot.addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
+        octaafBot.getTweeter().addPostListener(jeannineBot::replyToStatus);
+        octaafBot.getTweeter().addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
 
         return new DeBolleBots(octaafBot, jeannineBot);
     }
