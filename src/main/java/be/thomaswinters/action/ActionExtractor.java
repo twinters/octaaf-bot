@@ -9,6 +9,7 @@ import be.thomaswinters.pos.data.WordPOS;
 import be.thomaswinters.sentence.SentenceUtil;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ActionExtractor {
+    private final static Set<String> meaninglessVerbs = Set.of("zijn", "hebben", "worden", "gaan", "zullen", "betekenen");
+    private final static Set<String> onderwerpen = Set.of("ik", "jij", "wij", "hij", "zij");
     private final ProbabilisticPosTagger tagger;
 
     public ActionExtractor() throws IOException {
@@ -44,7 +47,7 @@ public class ActionExtractor {
 //        if ()
 
         // If next word is punctuation: look back!
-        if (wordLemmas.size() <= i+1 || wordLemmas.get(i + 1).getTag().equals(POStag.PUNCTUATION)) {
+        if (wordLemmas.size() <= i + 1 || wordLemmas.get(i + 1).getTag().equals(POStag.PUNCTUATION)) {
             return findBackwardsFullAction(wordLemmas, i);
         }
         return findForwardsFullAction(wordLemmas, i);
@@ -70,9 +73,6 @@ public class ActionExtractor {
         );
 
     }
-
-    private final static Set<String> meaninglessVerbs = Set.of("zijn","hebben","worden","gaan","zullen","betekenen");
-    private final static Set<String> onderwerpen = Set.of("ik","jij","wij","hij","zij");
 
     private boolean canBePartOfActionDescriptor(WordLemmaPOS wordLemmaPOS) {
 
@@ -108,8 +108,11 @@ public class ActionExtractor {
 
     private String toStemVerb(WordLemmaPOS wordLemmaPOS) {
         List<LemmaPOS> lemmas = wordLemmaPOS.getLemmas();
+
         if (!lemmas.isEmpty()) {
-            return lemmas.get(0).getLemma();
+            // Find shortest lemma
+            return lemmas.stream()
+                    .min(Comparator.comparingInt(e -> e.getLemma().length())).get().getLemma();
         }
         if (wordLemmaPOS.getWord().endsWith("en")) {
             return wordLemmaPOS.getWord();
@@ -122,7 +125,7 @@ public class ActionExtractor {
         String action = toStemVerb(wordLemmas.get(i));
 
         int endOfAction = i;
-        while (endOfAction < wordLemmas.size()-1
+        while (endOfAction < wordLemmas.size() - 1
                 && canBePartOfActionDescriptor(wordLemmas.get(endOfAction + 1))) {
             endOfAction += 1;
         }
@@ -130,7 +133,7 @@ public class ActionExtractor {
 
         return Optional.of(new ActionDescription(action,
                 wordLemmas
-                        .subList(i+1,Math.min(wordLemmas.size(),endOfAction)+1)
+                        .subList(i + 1, Math.min(wordLemmas.size(), endOfAction) + 1)
                         .stream()
                         .map(WordPOS::getWord)
                         .collect(Collectors.joining(" ")))

@@ -57,6 +57,17 @@ public class ActionExtractorTest {
 
 
     }
+    @Test
+    public void voltooid_deelwoord_tests() throws IOException {
+        assertEquals(Arrays.asList(
+                new ActionDescription("betekenen", "op elk moment"),
+                new ActionDescription("blijven", "")
+                ),
+                actionExtractor.extractAction("Dat betekent op elk moment, blijvend."));
+
+
+
+    }
 
 //    @Test
     public void burgemeester_hard_tests() throws IOException {
