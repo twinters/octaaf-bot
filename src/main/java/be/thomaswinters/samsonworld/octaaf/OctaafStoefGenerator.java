@@ -9,9 +9,17 @@ import be.thomaswinters.generator.selection.RouletteWheelSelection;
 import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
 import be.thomaswinters.language.DutchFirstPersonConverter;
 import be.thomaswinters.random.Picker;
+import be.thomaswinters.textgeneration.domain.context.ITextGeneratorContext;
+import be.thomaswinters.textgeneration.domain.context.TextGeneratorContext;
+import be.thomaswinters.textgeneration.domain.factories.command.SingleTextGeneratorArgumentCommandFactory;
+import be.thomaswinters.textgeneration.domain.generators.commands.SingleGeneratorArgumentCommand;
+import be.thomaswinters.textgeneration.domain.generators.databases.DeclarationFileTextGenerator;
+import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
+import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +29,37 @@ import java.util.stream.Stream;
 public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<String, String> {
 
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
+    private final DeclarationFileTextGenerator octaafTemplate =  DeclarationsFileParser.createTemplatedGenerator(
+            ClassLoader.getSystemResource("templates/octaaf.decl"),
+            Arrays.asList(
+                    new SingleTextGeneratorArgumentCommandFactory("thirdToFirstPersonPronouns",
+                            textgen -> new SingleGeneratorArgumentCommand(textgen) {
+                                @Override
+                                public String apply(String generatedString, ITextGeneratorContext parameters) {
+                                    return firstPersonConverter.thirdToFirstPersonPronouns(generatedString);
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "thirdToFirstPersonPronouns";
+                                }
+                            }
+                    ),
+                    new SingleTextGeneratorArgumentCommandFactory("thirdToSecondPersonPronouns",
+                            textgen -> new SingleGeneratorArgumentCommand(textgen) {
+                                @Override
+                                public String apply(String generatedString, ITextGeneratorContext parameters) {
+                                    return firstPersonConverter.thirdToSecondPersonPronouns(generatedString);
+                                }
+
+                                @Override
+                                public String getName() {
+                                    return "thirdToSecondPersonPronouns";
+                                }
+                            }
+                    )
+            )
+    );
 
     private final Set<ActionDescription> prohibitedFullActions =
             Set.of(
@@ -72,6 +111,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     @Override
     public Optional<String> generateReply(IChatMessage message) {
+        System.out.println("Starting to create reply to " + message);
         if (message.getUser().getScreenName().toLowerCase().equals("samsonrobot")) {
             String[] betweenQuotes = StringUtils.substringsBetween(message.getText(), "\"", "\"");
             if (betweenQuotes != null) {
@@ -88,12 +128,12 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                 return Optional.empty();
             }
         }
-        if (message.getUser().getScreenName().toLowerCase().equals("AlbertBot")) {
+        if (message.getUser().getScreenName().toLowerCase().equals("albertbot")) {
             if (message.getText().contains("AL-BER-TO")) {
                 return Optional.empty();
             }
         }
-        if (message.getUser().getScreenName().toLowerCase().equals("JeannineBot")) {
+        if (message.getUser().getScreenName().toLowerCase().equals("jeanninebot")) {
             if ((message.getText().contains("tip")
                     || message.getText().contains("advies"))
                     || message.getText().contains("onthoud")) {
@@ -156,22 +196,39 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                         .noneMatch(action -> e.getVerb().matches(action.getVerb())
                                 && e.getRestOfSentence().matches(action.getRestOfSentence())))
                 .map(chosen -> {
+                    NamedGeneratorRegister register = new NamedGeneratorRegister();
+
                     String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
                     Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
                     if (optionalVoorzetsel.isPresent()) {
+                        register.createGenerator("optionalVoorzetsel", optionalVoorzetsel.get());
                         firstPersonAction = firstPersonAction.substring(optionalVoorzetsel.get().length());
                     }
+                    register.createGenerator("verb", chosen.getVerb());
+                    register.createGenerator("firstPersonVerb", firstPersonAction);
+                    if (chosen.getRestOfSentence().trim().length() > 0) {
+                        register.createGenerator("restOfSentence", chosen.getRestOfSentence());
+                    }
 
-                    String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
-                    String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
-                    return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
-                            "Dat is nu toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
-                            "\"zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...\" ja zo "
-                            + firstPersonAction + " ik "
-                            + restOfSentence
-                            + optionalVoorzetsel.map(s -> " " + s).orElse("")
-                            + " hé!")
-                            .trim().replaceAll("\\s{2,}", " ");
+                    return octaafTemplate.generate(new TextGeneratorContext(register, true));
+
+
+//                    String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
+//                    Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
+//                    if (optionalVoorzetsel.isPresent()) {
+//                        firstPersonAction = firstPersonAction.substring(optionalVoorzetsel.get().length());
+//                    }
+//
+//                    String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
+//                    String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
+//                    return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
+//                            "Dat is nu toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
+//                            "\"zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...\" ja zo "
+//                            + firstPersonAction + " ik "
+//                            + restOfSentence
+//                            + optionalVoorzetsel.map(s -> " " + s).orElse("")
+//                            + " hé!")
+//                            .trim().replaceAll("\\s{2,}", " ");
                 });
     }
 

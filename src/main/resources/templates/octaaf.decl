@@ -1,0 +1,11 @@
+//aanzet = 
+
+eenSpecialiteit = dat is (nu ){.5}toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: "Pa," zegt ze, "zoals jij \ifdefined(<restOfSentence.thirdToSecondPersonPronouns> )kan <verb>..." ja zo <firstPersonVerb> ik \ifdefined(<restOfSentence.thirdToFirstPersonPronouns> )\ifdefined(<optionalVoorzetsel> )h(é|e)!
+
+generalAction = \ifdefined(<restOfSentence.thirdToFirstPersonPronouns> )<verb>
+
+main = {
+	10: Ah, <generalAction>! <eenSpecialiteit.capitalise>
+	1: (Goed|Fijn) dat je dat aanhaalt, want je weet: <generalAction>, <eenSpecialiteit>
+	1: Dat is toevallig! <generalAction.capitalise>, <eenSpecialiteit>
+}

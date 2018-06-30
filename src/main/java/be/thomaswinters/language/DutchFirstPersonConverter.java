@@ -28,6 +28,7 @@ public class DutchFirstPersonConverter {
     }
 
     private String thirdToOtherPersonPronouns(String bitOfText, String newSubject, String newObsessive, String newObject, String newReflective) {
+        // Todo: "zich" toevoegen: work with collections?
         return convertPersonPronouns(bitOfText, "zij", "hun", "hen", "zichzelf", newSubject, newObsessive, newObject, newReflective);
     }
 
