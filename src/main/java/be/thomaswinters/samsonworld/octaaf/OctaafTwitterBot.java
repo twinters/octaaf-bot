@@ -74,10 +74,6 @@ public class OctaafTwitterBot {
                                         .combineWith(
                                                 botFriendsTweetsFetcher)
                                         .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, octaafTwitter, 3))
-//                                new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle")
-//                                        .filterRandomly(octaafTwitter, 1, 3),
-//                                new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson")
-//                                        .filterRandomly(octaafTwitter, 1, 3)
                         )
                         // Filter out botfriends tweets randomly
                         .filterRandomlyIf(octaafTwitter, e -> botFriends.contains(e.getUser()), 1, 15)
@@ -104,8 +100,6 @@ public class OctaafTwitterBot {
                         .cache(Duration.ofMinutes(5))
                         .seed(() -> TwitterUnchecker.uncheck(TwitterUtil::getLastRealTweet, octaafTwitter))
                         .distinct()
-//                        .peek(System.out::println)
-//                        .map(status -> (IChatMessage) new TwitterChatMessage(octaafTwitter, status))
                         .reduceToGenerator(new RandomUniqueSelector<>());
 
 
@@ -140,17 +134,16 @@ public class OctaafTwitterBot {
                 new TwitterBot(octaafTwitter,
                         BehaviourCreator.createQuoterFromMessageReactor(
                                 octaafStoefGenerator,
-                                tweetsToQuoteRetweetOctaaf
-                        ).retry(10),
-                        BehaviourCreator.fromMessageReactor(octaafStoefGenerator),
+                                tweetsToQuoteRetweetOctaaf)
+                                .retry(10),
+                        BehaviourCreator.fromMessageReactor(octaafStoefGenerator)
+                                .retry(10),
                         tweetsToAnswerOctaaf);
 
         TwitterBot jeannineBot =
                 new TwitterBot(jeannineTwitter,
                         BehaviourCreator.empty(),
-                        BehaviourCreator.fromMessageReactor(
-                                jeannineTipsGenerator
-                        ),
+                        BehaviourCreator.fromMessageReactor(jeannineTipsGenerator).retry(10),
                         tweetsToAnswerJeanine);
 
         // Make Jeanine react to Octaaf tweets

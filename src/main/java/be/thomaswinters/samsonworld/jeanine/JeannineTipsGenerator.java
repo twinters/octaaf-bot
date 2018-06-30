@@ -156,8 +156,10 @@ public class JeannineTipsGenerator implements IChatBot {
             // Check if it contains an action
             if (messageText.contains("!") && messageText.contains("specialiteiten")) {
                 String actionText = messageText
-                        .substring(0, messageText.indexOf('!'))
-                        .replaceAll("[Aa]h,? ?", "")
+                        .substring(messageText.indexOf("zoals jij"), messageText.indexOf("...\" ja"))
+//                        .replaceAll("[Aa]h,? ?", "")
+                        .replaceAll("zoals jij", "")
+                        .replaceAll("kan", "")
                         .replaceAll(TwitterUtil.TWITTER_USERNAME_REGEX, "");
 
                 List<String> actionWords = SentenceUtil.splitOnSpaces(actionText).collect(Collectors.toList());
