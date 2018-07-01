@@ -36,13 +36,27 @@ public class OctaafTwitterBot {
     public static void main(String[] args) throws TwitterException, IOException {
         DeBolleBots deBolleBots = new OctaafTwitterBot().buildDeBolleBots();
         TwitterBot octaafBot = deBolleBots.octaafBot;
-        TwitterBot jeanineBot = deBolleBots.jeannineBot;
+        TwitterBot jeannineBot = deBolleBots.jeannineBot;
 
         // First reply to all unreplied, as this will be influenced by Octaaf.
-        jeanineBot.replyToAllUnrepliedMentions();
+        jeannineBot.replyToAllUnrepliedMentions();
 
+        // Run Jeannine
+        new Thread(() -> {
+            try {
+                new TwitterBotExecutor(jeannineBot).run(args);
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+        }).start();
         // Run octaafbot
-        new TwitterBotExecutor(octaafBot).run(args);
+        new Thread(() -> {
+            try {
+                new TwitterBotExecutor(octaafBot).run(args);
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
     }
 
@@ -109,7 +123,7 @@ public class OctaafTwitterBot {
                                 new TimelineTweetsFetcher(jeannineTwitter)
                                         .combineWith(
                                                 botFriendsTweetsFetcher)
-                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, jeannineTwitter, 3)),
+                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, jeannineTwitter, 4)),
                                 new SearchTweetsFetcher(jeannineTwitter, "jeannine de bolle")
                                         .combineWith(
                                                 new SearchTweetsFetcher(jeannineTwitter, "jeanine de bolle"),
@@ -143,7 +157,8 @@ public class OctaafTwitterBot {
         TwitterBot jeannineBot =
                 new TwitterBot(jeannineTwitter,
                         BehaviourCreator.empty(),
-                        BehaviourCreator.fromMessageReactor(jeannineTipsGenerator).retry(10),
+                        BehaviourCreator.fromMessageReactor(jeannineTipsGenerator)
+                                .retry(10),
                         tweetsToAnswerJeanine);
 
         // Make Jeanine react to Octaaf tweets
