@@ -223,12 +223,17 @@ public class JeannineTipsGenerator implements IChatBot {
                     register.createGenerator("tip", tip);
                 }
             }
-            String result =
-                    templatedGenerator.generate(generatorToUse,
-                            new TextGeneratorContext(register, true)
-                    );
-            if (result.trim().length() > 0) {
-                return Optional.of(result);
+            try {
+                String result =
+                        templatedGenerator.generate(generatorToUse,
+                                new TextGeneratorContext(register, true)
+                        );
+                if (result.trim().length() > 0) {
+                    return Optional.of(result);
+                }
+            } catch (RuntimeException e) {
+                System.out.println("Error with Jeanninebot: " + e.getMessage());
+                return Optional.empty();
             }
         }
         return Optional.empty();
