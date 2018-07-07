@@ -1,7 +1,7 @@
 package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.generator.generators.IGenerator;
-import be.thomaswinters.generator.selection.RandomUniqueSelector;
+import be.thomaswinters.generator.selection.RouletteWheelSelection;
 import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.BehaviourCreator;
 import be.thomaswinters.twitter.bot.TwitterBot;
@@ -114,7 +114,7 @@ public class OctaafTwitterBot {
                         .cache(Duration.ofMinutes(5))
                         .seed(() -> TwitterUnchecker.uncheck(TwitterUtil::getLastRealTweet, octaafTwitter))
                         .distinct()
-                        .reduceToGenerator(new RandomUniqueSelector<>());
+                        .reduceToGenerator(new RouletteWheelSelection<>(this::calculateQuoteRetweetFitnessFunction));
 
 
         ITweetsFetcher tweetsToAnswerJeanine =
@@ -166,6 +166,15 @@ public class OctaafTwitterBot {
         octaafBot.getTweeter().addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
 
         return new DeBolleBots(octaafBot, jeannineBot);
+    }
+
+    private double calculateQuoteRetweetFitnessFunction(Status status) {
+        if (status.getUser().getScreenName().equals("JeannineBot")) {
+            return 1d;
+        } else if (status.getText().toLowerCase().contains("octaaf")) {
+            return 20d;
+        }
+        return 5d;
     }
 
     public TwitterBot build() throws IOException, TwitterException {
