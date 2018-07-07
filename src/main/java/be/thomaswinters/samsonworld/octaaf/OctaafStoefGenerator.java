@@ -7,7 +7,7 @@ import be.thomaswinters.chatbot.data.IChatMessage;
 import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
 import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
-import be.thomaswinters.language.DutchFirstPersonConverter;
+import be.thomaswinters.language.dutch.DutchFirstPersonConverter;
 import be.thomaswinters.random.Picker;
 import be.thomaswinters.textgeneration.domain.context.ITextGeneratorContext;
 import be.thomaswinters.textgeneration.domain.context.TextGeneratorContext;
@@ -16,6 +16,7 @@ import be.thomaswinters.textgeneration.domain.generators.commands.SingleGenerato
 import be.thomaswinters.textgeneration.domain.generators.databases.DeclarationFileTextGenerator;
 import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
 import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
+import be.thomaswinters.twitter.util.TwitterUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<String, String> {
 
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
-    private final DeclarationFileTextGenerator octaafTemplate =  DeclarationsFileParser.createTemplatedGenerator(
+    private final DeclarationFileTextGenerator octaafTemplate = DeclarationsFileParser.createTemplatedGenerator(
             ClassLoader.getSystemResource("templates/octaaf.decl"),
             Arrays.asList(
                     new SingleTextGeneratorArgumentCommandFactory("thirdToFirstPersonPronouns",
@@ -68,6 +69,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("gaan", ".*"),
                     new ActionDescription("zullen", ".*"),
                     new ActionDescription("kunnen", ".*"),
+                    new ActionDescription("(#.* ?)+", ""),
 
                     // Prohibited Subjects
                     new ActionDescription(".*", "en"),
@@ -157,7 +159,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
         // 1 / i^2
         ISelector<String> selector = new RouletteWheelSelection<>(
                 option -> 1 / Math.pow(options.size() - options.lastIndexOf(option), 2));
-        return selector.select(options.stream());
+        return selector.select(options.stream()).map(e->e.replaceAll(" +"," ").replaceAll("# ", "#"));
 
     }
 

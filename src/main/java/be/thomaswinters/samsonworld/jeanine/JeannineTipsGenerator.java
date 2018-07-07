@@ -7,7 +7,7 @@ import be.thomaswinters.chatbot.data.IChatMessage;
 import be.thomaswinters.generator.fitness.IFitnessFunction;
 import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.TournamentSelection;
-import be.thomaswinters.language.DutchFirstPersonConverter;
+import be.thomaswinters.language.dutch.DutchFirstPersonConverter;
 import be.thomaswinters.random.Picker;
 import be.thomaswinters.replacement.Replacer;
 import be.thomaswinters.replacement.Replacers;
