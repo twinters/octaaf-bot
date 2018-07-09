@@ -16,7 +16,6 @@ import be.thomaswinters.textgeneration.domain.generators.commands.SingleGenerato
 import be.thomaswinters.textgeneration.domain.generators.databases.DeclarationFileTextGenerator;
 import be.thomaswinters.textgeneration.domain.generators.named.NamedGeneratorRegister;
 import be.thomaswinters.textgeneration.domain.parsers.DeclarationsFileParser;
-import be.thomaswinters.twitter.util.TwitterUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -159,7 +158,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
         // 1 / i^2
         ISelector<String> selector = new RouletteWheelSelection<>(
                 option -> 1 / Math.pow(options.size() - options.lastIndexOf(option), 2));
-        return selector.select(options.stream()).map(e->e.replaceAll(" +"," ").replaceAll("# ", "#"));
+        return selector.select(options.stream()).map(e -> e.replaceAll(" +", " ").replaceAll("# ", "#"));
 
     }
 
@@ -185,15 +184,6 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
         return actionDescriptions
                 .stream()
-//                .peek(e -> {
-//                    if (prohibitedFullActions.stream()
-//                            .noneMatch(action -> e.getVerb().matches(action.getVerb())
-//                                    && e.getRestOfSentence().matches(action.getRestOfSentence()))) {
-//                        System.out.println("°ALLOWED: " + e);
-//                    } else {
-//                        System.out.println("_BLOCKED: " + e);
-//                    }
-//                })
                 .filter(e -> prohibitedFullActions.stream()
                         .noneMatch(action -> e.getVerb().matches(action.getVerb())
                                 && e.getRestOfSentence().matches(action.getRestOfSentence())))
@@ -214,23 +204,6 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
                     return octaafTemplate.generate(new TextGeneratorContext(register, true));
 
-
-//                    String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
-//                    Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
-//                    if (optionalVoorzetsel.isPresent()) {
-//                        firstPersonAction = firstPersonAction.substring(optionalVoorzetsel.get().length());
-//                    }
-//
-//                    String restOfSentence = firstPersonConverter.thirdToFirstPersonPronouns(chosen.getRestOfSentence());
-//                    String restOfSentenceSecondPerson = firstPersonConverter.thirdToSecondPersonPronouns(chosen.getRestOfSentence());
-//                    return ("Ah, " + restOfSentence + " " + chosen.getVerb() + "! " +
-//                            "Dat is nu toevallig één van mijn specialiteiten! Mijn Miranda zegt dat ook altijd: \"Pa,\" zegt ze, " +
-//                            "\"zoals jij " + restOfSentenceSecondPerson + " kan " + chosen.getVerb() + "...\" ja zo "
-//                            + firstPersonAction + " ik "
-//                            + restOfSentence
-//                            + optionalVoorzetsel.map(s -> " " + s).orElse("")
-//                            + " hé!")
-//                            .trim().replaceAll("\\s{2,}", " ");
                 });
     }
 
