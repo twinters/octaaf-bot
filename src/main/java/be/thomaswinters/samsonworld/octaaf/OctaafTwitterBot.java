@@ -149,16 +149,16 @@ public class OctaafTwitterBot {
                         BehaviourCreator.createQuoterFromMessageReactor(
                                 octaafStoefGenerator,
                                 tweetsToQuoteRetweetOctaaf)
-                                .retry(10),
+                                .retry(5),
                         BehaviourCreator.fromMessageReactor(octaafStoefGenerator)
-                                .retry(10),
+                                .retry(5),
                         tweetsToAnswerOctaaf);
 
         TwitterBot jeannineBot =
                 new TwitterBot(jeannineTwitter,
                         BehaviourCreator.empty(),
                         BehaviourCreator.fromMessageReactor(jeannineTipsGenerator)
-                                .retry(10),
+                                .retry(5),
                         tweetsToAnswerJeanine);
 
         // Make Jeanine react to Octaaf tweets
@@ -170,7 +170,7 @@ public class OctaafTwitterBot {
 
     private double calculateQuoteRetweetFitnessFunction(Status status) {
         if (status.getUser().getScreenName().equals("JeannineBot")) {
-            return 1d;
+            return 0.2d;
         } else if (status.getText().toLowerCase().contains("octaaf")) {
             return 20d;
         }

@@ -31,7 +31,7 @@ tipGeving = {
 
 // Main
 octaafReply = {
-	12: (<tipGeving.capitalise>/<vanZijnOuders.capitalise>)
+	20: <tipGeving.capitalise>
 	1: <vanZijnOuders.capitalise>
 }
 
