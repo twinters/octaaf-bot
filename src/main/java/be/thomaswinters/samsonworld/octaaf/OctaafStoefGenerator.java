@@ -162,15 +162,6 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
 
     }
 
-    private Optional<String> getVoorzetselFor(String firstPersonVerb) {
-        return voorzetsels.stream()
-                .filter(e -> firstPersonVerb.startsWith(e)
-                        && voorzetselsUitzonderingPrefixen
-                        .stream()
-                        .noneMatch(firstPersonVerb::startsWith))
-                .filter(vz -> vz.length() < firstPersonVerb.length())
-                .findFirst();
-    }
 
     @Override
     public Stream<String> generateStream(String input) {
@@ -191,7 +182,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     NamedGeneratorRegister register = new NamedGeneratorRegister();
 
                     String firstPersonAction = firstPersonConverter.toFirstPersonSingularVerb(chosen.getVerb());
-                    Optional<String> optionalVoorzetsel = getVoorzetselFor(firstPersonAction);
+                    Optional<String> optionalVoorzetsel = DutchVerbUtil.getPrepositionOfVerb(firstPersonAction);
                     if (optionalVoorzetsel.isPresent()) {
                         register.createGenerator("optionalVoorzetsel", optionalVoorzetsel.get());
                         firstPersonAction = firstPersonAction.substring(optionalVoorzetsel.get().length());
