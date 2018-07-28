@@ -8,6 +8,7 @@ import be.thomaswinters.generator.selection.ISelector;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
 import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
 import be.thomaswinters.language.dutch.DutchFirstPersonConverter;
+import be.thomaswinters.language.dutch.DutchVerbUtil;
 import be.thomaswinters.random.Picker;
 import be.thomaswinters.textgeneration.domain.context.ITextGeneratorContext;
 import be.thomaswinters.textgeneration.domain.context.TextGeneratorContext;
@@ -68,6 +69,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("gaan", ".*"),
                     new ActionDescription("zullen", ".*"),
                     new ActionDescription("kunnen", ".*"),
+                    new ActionDescription("laten", ".*"),
                     new ActionDescription("(#.* ?)+", ""),
 
                     // Prohibited Subjects
@@ -79,6 +81,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription(".*", "jullie"),
                     new ActionDescription(".*", "wij"),
                     new ActionDescription(".*", ".*kan.*"),
+                    new ActionDescription(".*", "laten"),
                     new ActionDescription(".*", ".*voltooid deelwoord.*"),
                     new ActionDescription(".*", ".*genitief van de.*"),
 
@@ -94,6 +97,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("geven", ""),
                     new ActionDescription("geven", "te"),
                     new ActionDescription("hebben", "honger"),
+                    new ActionDescription("houden", "zo enorm.*"),
 
                     // Albertobot counter
 
@@ -101,10 +105,6 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
             );
 
     private final ActionExtractor actionExtractor;
-    private final Set<String> voorzetsels = Set.of("af", "toe", "weg", "op", "binnen", "door", "in", "langs",
-            "om", "over", "rond", "uit", "voorbij", "aan");
-    private final Set<String> voorzetselsUitzonderingPrefixen = Set.of("inter", "intimideer", "installeer", "investeer",
-            "innoveer", "overtref", "overkomen", "overwegen", "overlasten", "overschrijd", "overtuig");
 
     public OctaafStoefGenerator() throws IOException {
         this.actionExtractor = new ActionExtractor();

@@ -27,11 +27,13 @@ import be.thomaswinters.wikihow.data.PageCard;
 import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JeannineTipsGenerator implements IChatBot {
-    private final WikihowSearcher searcher = WikihowSearcher.fromEnvironment("nl");
+    private final WikihowSearcher searcher = WikihowSearcher.fromEnvironment("nl", Duration.ofSeconds(1));
     private final WikiHowPageScraper wikiHowPageScraper = new WikiHowPageScraper("nl");
     private final IFitnessFunction<String> tipFitnessFunction = e -> 1 / e.length();
     private final DutchFirstPersonConverter firstPersonConverter = new DutchFirstPersonConverter();
@@ -81,7 +83,7 @@ public class JeannineTipsGenerator implements IChatBot {
                 }).reversed())
                 .map(e -> {
                     try {
-                        return Optional.of(wikiHowPageScraper.scrape(e));
+                        return Optional.ofNullable(wikiHowPageScraper.scrape(e));
                     } catch (HttpStatusException httpEx) {
                         if (httpEx.getStatusCode() == 404) {
                             return Optional.<Page>empty();
@@ -154,7 +156,7 @@ public class JeannineTipsGenerator implements IChatBot {
             generatorToUse = "octaafReply";
 
             // Check if it contains an action
-            if (messageText.contains("!") && messageText.contains("specialiteiten")) {
+            if (messageText.contains("specialiteiten")) {
                 String actionText = messageText
                         .substring(messageText.indexOf("zoals jij"), messageText.indexOf("...\" ja"))
 //                        .replaceAll("[Aa]h,? ?", "")
@@ -162,6 +164,7 @@ public class JeannineTipsGenerator implements IChatBot {
                         .replaceAll("kan", "")
                         .replaceAll(TwitterUtil.TWITTER_USERNAME_REGEX, "");
 
+                System.out.println("DETECTED ACTION: " + actionText);
                 List<String> actionWords = SentenceUtil.splitOnSpaces(actionText).collect(Collectors.toList());
                 String actionVerb = actionWords.get(actionWords.size() - 1);
                 actionDescription = Optional.of(new ActionDescription(
