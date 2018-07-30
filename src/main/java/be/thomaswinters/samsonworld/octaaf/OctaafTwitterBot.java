@@ -101,12 +101,18 @@ public class OctaafTwitterBot {
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
         IGenerator<Status> tweetsToQuoteRetweetOctaaf =
-                TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter)
-                        .combineWith(
+                new TweetsFetcherCombiner(
+                        new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle"),
+                        new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson"),
+                        new SearchTweetsFetcher(jeannineTwitter, "jeannine de bolle"),
+                        new SearchTweetsFetcher(jeannineTwitter, "jeanine de bolle"),
+                        new SearchTweetsFetcher(jeannineTwitter, "mevrouw praline"),
+                        new SearchTweetsFetcher(jeannineTwitter, "miranda","de bolle")
+                )
+                        .orElse(new TweetsFetcherCombiner(
+                                TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter),
                                 new TimelineTweetsFetcher(octaafTwitter),
-                                botFriendsTweetsFetcher,
-                                new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle"),
-                                new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson"))
+                                botFriendsTweetsFetcher))
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         .filterOutOwnTweets(octaafTwitter)
@@ -114,7 +120,8 @@ public class OctaafTwitterBot {
                         .cache(Duration.ofMinutes(5))
                         .seed(() -> TwitterUnchecker.uncheck(TwitterUtil::getLastRealTweet, octaafTwitter))
                         .distinct()
-                        .reduceToGenerator(new RouletteWheelSelection<>(this::calculateQuoteRetweetFitnessFunction));
+                        .
+                                reduceToGenerator(new RouletteWheelSelection<>(this::calculateQuoteRetweetFitnessFunction));
 
 
         ITweetsFetcher tweetsToAnswerJeanine =
