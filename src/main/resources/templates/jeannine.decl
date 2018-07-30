@@ -30,10 +30,7 @@ tipGeving = {
 }
 
 // Main
-octaafReply = {
-	20: <tipGeving.capitalise>
-	1: <vanZijnOuders.capitalise>
-}
+octaafReply = <tipGeving.capitalise> / <vanZijnOuders.capitalise>
 
 reply = {
 	<ah> ik heb <daarover>( nog){.5} een <hobbyclubTip>(! <tip.capitalise>|: <tip.lower>)
