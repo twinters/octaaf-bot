@@ -3,7 +3,7 @@ package be.thomaswinters.samsonworld.octaaf.experiments;
 import be.thomaswinters.chatbot.data.ChatMessage;
 import be.thomaswinters.chatbot.data.ChatUser;
 import be.thomaswinters.chatbot.data.IChatUser;
-import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
+import be.thomaswinters.samsonworld.jeannine.JeannineTipsGenerator;
 import be.thomaswinters.samsonworld.octaaf.OctaafStoefGenerator;
 import be.thomaswinters.twitter.tweetsfetcher.SearchTweetsFetcher;
 import be.thomaswinters.twitter.util.TwitterLogin;

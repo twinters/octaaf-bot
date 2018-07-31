@@ -1,4 +1,4 @@
-package be.thomaswinters.samsonworld.jeanine;
+package be.thomaswinters.samsonworld.jeannine;
 
 import be.thomaswinters.action.ActionExtractor;
 import be.thomaswinters.action.data.ActionDescription;
@@ -28,7 +28,6 @@ import org.jsoup.HttpStatusException;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -181,6 +180,7 @@ public class JeannineTipsGenerator implements IChatBot {
                 e.printStackTrace();
             }
         }
+        System.out.println("USING ACTION DESCRIPTION: " + actionDescription);
 
         if (actionDescription.isPresent()) {
 
@@ -214,6 +214,7 @@ public class JeannineTipsGenerator implements IChatBot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println("FOUND TIPS: " + tips);
 
             if (!tips.isEmpty()) {
                 Optional<String> selectedTip = tipSelector.select(tips.stream());
@@ -224,9 +225,11 @@ public class JeannineTipsGenerator implements IChatBot {
                         tip = negateTip(tip);
                     }
                     register.createGenerator("tip", tip);
+                    System.out.println("REGISTERED TIP:" + tip);
                 }
             }
             try {
+                System.out.println("GENERATING RESULT USING REGISTER: "+register);
                 String result =
                         templatedGenerator.generate(generatorToUse,
                                 new TextGeneratorContext(register, true)

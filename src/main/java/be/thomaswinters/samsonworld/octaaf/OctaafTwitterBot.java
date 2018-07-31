@@ -2,7 +2,7 @@ package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.generator.generators.IGenerator;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
-import be.thomaswinters.samsonworld.jeanine.JeannineTipsGenerator;
+import be.thomaswinters.samsonworld.jeannine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.BehaviourCreator;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.executor.TwitterBotExecutor;
