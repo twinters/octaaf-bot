@@ -31,8 +31,8 @@ public class OctaafStoefExperiments {
 
     private static void jeanineTest() throws IOException {
         IChatUser octaafUser = new ChatUser("OctaafBot");
-        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
-        System.out.println(jeanine.generateReply(new ChatMessage(Optional.empty(),"transporteren!", octaafUser)));
+//        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
+//        System.out.println(jeanine.generateReply(new ChatMessage(Optional.empty(),"transporteren!", octaafUser)));
     }
 
     private static void singleTest(String s) throws IOException {
@@ -43,7 +43,7 @@ public class OctaafStoefExperiments {
     private static void reactTo(String file, String botName) throws IOException {
         OctaafStoefGenerator octaaf = new OctaafStoefGenerator();
         IChatUser octaafUser = new ChatUser("OctaafBot");
-        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
+//        JeannineTipsGenerator jeanine  = new JeannineTipsGenerator();
 
         IChatUser chatUser = new ChatUser(botName);
 
@@ -56,8 +56,8 @@ public class OctaafStoefExperiments {
                 .forEach(out -> {
                     if (out.isPresent()) {
                         System.out.println("OCTAAF: \t" + out.get());
-                        jeanine.generateReply(new ChatMessage(Optional.empty(), out.get(),octaafUser))
-                                .ifPresent(e->System.out.println("JEANINE:\t" + e));
+//                        jeanine.generateReply(new ChatMessage(Optional.empty(), out.get(),octaafUser))
+//                                .ifPresent(e->System.out.println("JEANINE:\t" + e));
                     } else {
                         System.out.println("NIKS");
                     }
