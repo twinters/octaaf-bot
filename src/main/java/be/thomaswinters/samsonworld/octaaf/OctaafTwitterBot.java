@@ -2,7 +2,6 @@ package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.generator.generators.IGenerator;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
-import be.thomaswinters.samsonworld.jeannine.JeannineTipsGenerator;
 import be.thomaswinters.twitter.bot.BehaviourCreator;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.executor.TwitterBotExecutor;
@@ -34,43 +33,19 @@ public class OctaafTwitterBot {
             .collect(Collectors.toList());
 
     public static void main(String[] args) throws TwitterException, IOException {
-        DeBolleBots deBolleBots = new OctaafTwitterBot().buildDeBolleBots();
-        TwitterBot octaafBot = deBolleBots.octaafBot;
-        TwitterBot jeannineBot = deBolleBots.jeannineBot;
-
-        // First reply to all unreplied, as this will be influenced by Octaaf.
-        jeannineBot.replyToAllUnrepliedMentions();
-
-        // Run Jeannine
-        new Thread(() -> {
-            try {
-                new TwitterBotExecutor(jeannineBot).run(args);
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        // Run octaafbot
-        new Thread(() -> {
-            try {
-                new TwitterBotExecutor(octaafBot).run(args);
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        TwitterBot octaafBot = new OctaafTwitterBot().build();
+        new TwitterBotExecutor(octaafBot).run(args);
 
     }
 
-    public DeBolleBots buildDeBolleBots() throws IOException {
+    public TwitterBot build() throws IOException {
 
 
         long samsonBotsList = 1006565134796500992L;
 
         Twitter octaafTwitter = TwitterLogin.getTwitterFromEnvironment("octaaf");
-        Twitter jeannineTwitter = TwitterLogin.getTwitterFromEnvironment("jeannine");
 
         OctaafStoefGenerator octaafStoefGenerator = new OctaafStoefGenerator();
-        JeannineTipsGenerator jeannineTipsGenerator = new JeannineTipsGenerator();
-
 
         // Bot friends
         Collection<User> botFriends = ListUserFetcher.getUsers(octaafTwitter, samsonBotsList);
@@ -104,10 +79,10 @@ public class OctaafTwitterBot {
                 new TweetsFetcherCombiner(
                         new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle"),
                         new SearchTweetsFetcher(octaafTwitter, "octaaf", "samson"),
-                        new SearchTweetsFetcher(jeannineTwitter, "jeannine de bolle"),
-                        new SearchTweetsFetcher(jeannineTwitter, "jeanine de bolle"),
-                        new SearchTweetsFetcher(jeannineTwitter, "mevrouw praline"),
-                        new SearchTweetsFetcher(jeannineTwitter, "miranda","de bolle")
+                        new SearchTweetsFetcher(octaafTwitter, "jeannine de bolle"),
+                        new SearchTweetsFetcher(octaafTwitter, "jeanine de bolle"),
+                        new SearchTweetsFetcher(octaafTwitter, "mevrouw praline"),
+                        new SearchTweetsFetcher(octaafTwitter, "miranda", "de bolle")
                 )
                         .orElse(new TweetsFetcherCombiner(
                                 TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter),
@@ -124,55 +99,14 @@ public class OctaafTwitterBot {
                                 reduceToGenerator(new RouletteWheelSelection<>(this::calculateQuoteRetweetFitnessFunction));
 
 
-        ITweetsFetcher tweetsToAnswerJeanine =
-                TwitterBot.MENTIONS_RETRIEVER.apply(jeannineTwitter)
-                        .combineWith(
-                                new TimelineTweetsFetcher(jeannineTwitter)
-                                        .combineWith(
-                                                botFriendsTweetsFetcher)
-                                        .filter(TwitterUnchecker.uncheck(AlreadyParticipatedFilter::new, jeannineTwitter, 4)),
-                                new SearchTweetsFetcher(jeannineTwitter, "jeannine de bolle")
-                                        .combineWith(
-                                                new SearchTweetsFetcher(jeannineTwitter, "jeanine de bolle"),
-                                                new SearchTweetsFetcher(jeannineTwitter, "mevrouw praline")
-                                        )
-                                        .filterRandomly(jeannineTwitter, 1, 4))
-                        // Filter out botfriends tweets randomly
-                        .filterRandomlyIf(jeannineTwitter, e -> botFriends.contains(e.getUser()), 1, 20)
-                        // Filter out own tweets & retweets
-                        .filterOutRetweets()
-                        // Filter out already replied to messages
-                        .filterRandomlyIf(jeannineTwitter, alreadyRepliedToByOthersFilter, 1, 3)
-                        .filterOutOwnTweets(jeannineTwitter)
-                        .filterOutMessagesWithWords(prohibitedWordsToAnswer);
-
-//        IFitnessFunction<String> octaafQuoteRetweetSelector = tweetText -> {
-//          if (tweetText.)
-//        };
-
-
-        TwitterBot octaafBot =
-                new TwitterBot(octaafTwitter,
-                        BehaviourCreator.createQuoterFromMessageReactor(
-                                octaafStoefGenerator,
-                                tweetsToQuoteRetweetOctaaf)
-                                .retry(5),
-                        BehaviourCreator.fromMessageReactor(octaafStoefGenerator)
-                                .retry(5),
-                        tweetsToAnswerOctaaf);
-
-        TwitterBot jeannineBot =
-                new TwitterBot(jeannineTwitter,
-                        BehaviourCreator.empty(),
-                        BehaviourCreator.fromMessageReactor(jeannineTipsGenerator)
-                                .retry(5),
-                        tweetsToAnswerJeanine);
-
-        // Make Jeanine react to Octaaf tweets
-        octaafBot.getTweeter().addPostListener(jeannineBot::replyToStatus);
-        octaafBot.getTweeter().addReplyListener((message, toMessage) -> jeannineBot.replyToStatus(message));
-
-        return new DeBolleBots(octaafBot, jeannineBot);
+        return new TwitterBot(octaafTwitter,
+                BehaviourCreator.createQuoterFromMessageReactor(
+                        octaafStoefGenerator,
+                        tweetsToQuoteRetweetOctaaf)
+                        .retry(5),
+                BehaviourCreator.fromMessageReactor(octaafStoefGenerator)
+                        .retry(5),
+                tweetsToAnswerOctaaf);
     }
 
     private double calculateQuoteRetweetFitnessFunction(Status status) {
@@ -182,19 +116,5 @@ public class OctaafTwitterBot {
             return 20d;
         }
         return 5d;
-    }
-
-    public TwitterBot build() throws IOException, TwitterException {
-        return buildDeBolleBots().octaafBot;
-    }
-
-    private static class DeBolleBots {
-        private final TwitterBot octaafBot;
-        private final TwitterBot jeannineBot;
-
-        public DeBolleBots(TwitterBot octaafBot, TwitterBot jeanineBot) {
-            this.octaafBot = octaafBot;
-            this.jeannineBot = jeanineBot;
-        }
     }
 }
