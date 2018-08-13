@@ -98,6 +98,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("geven", "te"),
                     new ActionDescription("hebben", "honger"),
                     new ActionDescription("houden", "zo enorm.*"),
+                    new ActionDescription("houden", "zo vee.*"),
 
                     // Albertobot counter
 

@@ -2,6 +2,7 @@ package be.thomaswinters.samsonworld.octaaf;
 
 import be.thomaswinters.generator.generators.IGenerator;
 import be.thomaswinters.generator.selection.RouletteWheelSelection;
+import be.thomaswinters.generator.streamgenerator.reacting.IReactingStreamGenerator;
 import be.thomaswinters.twitter.bot.BehaviourCreator;
 import be.thomaswinters.twitter.bot.TwitterBot;
 import be.thomaswinters.twitter.bot.executor.TwitterBotExecutor;
@@ -75,6 +76,7 @@ public class OctaafTwitterBot {
                         .filterOutOwnTweets(octaafTwitter)
                         .filterOutMessagesWithWords(prohibitedWordsToAnswer);
 
+
         IGenerator<Status> tweetsToQuoteRetweetOctaaf =
                 new TweetsFetcherCombiner(
                         new SearchTweetsFetcher(octaafTwitter, "octaaf de bolle"),
@@ -82,12 +84,10 @@ public class OctaafTwitterBot {
                         new SearchTweetsFetcher(octaafTwitter, "jeannine de bolle"),
                         new SearchTweetsFetcher(octaafTwitter, "jeanine de bolle"),
                         new SearchTweetsFetcher(octaafTwitter, "mevrouw praline"),
-                        new SearchTweetsFetcher(octaafTwitter, "miranda", "de bolle")
-                )
-                        .orElse(new TweetsFetcherCombiner(
-                                TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter),
-                                new TimelineTweetsFetcher(octaafTwitter),
-                                botFriendsTweetsFetcher))
+                        new SearchTweetsFetcher(octaafTwitter, "miranda", "de bolle"),
+                        TwitterBot.MENTIONS_RETRIEVER.apply(octaafTwitter),
+                        new TimelineTweetsFetcher(octaafTwitter),
+                        botFriendsTweetsFetcher)
                         // Filter out own tweets & retweets
                         .filterOutRetweets()
                         .filterOutOwnTweets(octaafTwitter)
