@@ -84,6 +84,8 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription(".*", "laten"),
                     new ActionDescription(".*", ".*voltooid deelwoord.*"),
                     new ActionDescription(".*", ".*genitief van de.*"),
+                    new ActionDescription(".*", ".*je bedoelt.*"),
+                    new ActionDescription(".*", ".*niet maar.*"),
 
                     // Prohibited full actions
                     new ActionDescription("zijn", ""),
@@ -91,6 +93,7 @@ public class OctaafStoefGenerator implements IChatBot, IReactingStreamGenerator<
                     new ActionDescription("zijn", ".* te .*"),
                     new ActionDescription("worden", ""),
                     new ActionDescription("hebben", ""),
+                    new ActionDescription("hebben", ".*nu.*"),
                     new ActionDescription("gaan", ""),
                     new ActionDescription("houden", ""),
                     new ActionDescription("stellen", ""),
